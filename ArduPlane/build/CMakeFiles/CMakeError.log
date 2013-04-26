@@ -1,0 +1,66 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: /usr/bin/avr-gcc 
+Build flags: 
+Id flags: 
+
+The output was:
+1
+/usr/lib/gcc/avr/4.5.3/../../../avr/bin/ld: cannot find -lc
+collect2: ld returned 1 exit status
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /usr/bin/avr-g++ 
+Build flags: 
+Id flags: 
+
+The output was:
+1
+/usr/lib/gcc/avr/4.5.3/../../../avr/bin/ld: cannot find -lm
+collect2: ld returned 1 exit status
+
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: /usr/bin/avr-gcc 
+Build flags: -g;-Os;;;;;;;-mcall-prologues;-ffunction-sections;-fdata-sections
+Id flags: 
+
+The output was:
+1
+/usr/lib/gcc/avr/4.5.3/../../../avr/bin/ld: cannot find -lc
+collect2: ld returned 1 exit status
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /usr/bin/avr-g++ 
+Build flags: -g;-Os;;;;;;;-mcall-prologues;-ffunction-sections;-fdata-sections;-fno-exceptions
+Id flags: 
+
+The output was:
+1
+/usr/lib/gcc/avr/4.5.3/../../../avr/bin/ld: cannot find -lm
+collect2: ld returned 1 exit status
+
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: /usr/bin/avr-gcc 
+Build flags: -g;-Os;;;;;;;-mcall-prologues;-ffunction-sections;-fdata-sections
+Id flags: 
+
+The output was:
+1
+/usr/lib/gcc/avr/4.5.3/../../../avr/bin/ld: cannot find -lc
+collect2: ld returned 1 exit status
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /usr/bin/avr-g++ 
+Build flags: -g;-Os;;;;;;;-mcall-prologues;-ffunction-sections;-fdata-sections;-fno-exceptions
+Id flags: 
+
+The output was:
+1
+/usr/lib/gcc/avr/4.5.3/../../../avr/bin/ld: cannot find -lm
+collect2: ld returned 1 exit status
+
+
