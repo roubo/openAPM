@@ -12,7 +12,12 @@
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
  */
-
+/*在APM飞控系统中，采用的是两极PID控制方式，第一级是导航级，第二级是控制级，导航
+级的计算集中在medium_loop()和fastloop()的update_current_flight_mode()函数中，控
+制级集中在fastl	oop的stabilize()函数中。导航级PID控制就是要解决飞机如何一预定空
+速飞行在预定高度的问题，以及如何转弯飞往目标问题，通过算法给出飞机需要的俯仰角、油门和横滚角，然后交给控制级进	行控制计算。控制级的任务就是依据需要的俯仰角、横滚角油门，结合飞机当前的姿态计算出合适的舵机控制量，使飞机保持预定的俯仰角、横滚角和方向角。最后通过舵机控制级set_servos_4()将控制量转换成具体的pwm信号量输出给
+舵机。值得一提的是，油门的控制量是在导航级确定的。控制级中不对油门控制量进行计算，而直接交给舵机控制级。而对于方向舵的控制，导航级并不给出方向舵量的计算，而是由
+控制级直接计算方向舵控制量，然后再交给舵机控制级。  */
 ////////////////////////////////////////////////////////////////////////////////
 // Header includes
 ////////////////////////////////////////////////////////////////////////////////
@@ -664,7 +669,7 @@ void setup() {
     cliSerial = hal.console;
 
     // load the default values of variables listed in var_info[]
-    AP_Param::setup_sketch_defaults();
+    AP_Param::setup_sketch_defaults();//加载默认值
 
     rssi_analog_source = hal.analogin->channel(ANALOG_INPUT_NONE, 0.25);
 
@@ -679,28 +684,30 @@ void setup() {
     batt_volt_pin = hal.analogin->channel(g.battery_volt_pin);
     batt_curr_pin = hal.analogin->channel(g.battery_curr_pin);
     
-    airspeed.init(pitot_analog_source);
-    memcheck_init();
-    init_ardupilot();
+    airspeed.init(pitot_analog_source);//参考AP_Airspeed.h
+    memcheck_init();//初始化诊断内存，设置标志位
+    init_ardupilot();//参考system.pde
 }
 
 void loop()
 {
     // We want this to execute at 50Hz, but synchronised with the gyro/accel
+	//以50hz的频率执行，和陀螺仪、加速度计同步
     uint16_t num_samples = ins.num_samples_available();
     if (num_samples >= 1) {
         delta_ms_fast_loop      = millis() - fast_loopTimer_ms;
         load                = (float)(fast_loopTimeStamp_ms - fast_loopTimer_ms)/delta_ms_fast_loop;
-        G_Dt                = (float)delta_ms_fast_loop / 1000.f;
+        G_Dt                = (float)delta_ms_fast_loop / 1000.f;//陀螺仪积分时间
         fast_loopTimer_ms   = millis();
-
         mainLoop_count++;
 
         // Execute the fast loop
+	//控制级
         // ---------------------
         fast_loop();
 
         // Execute the medium loop
+	//导航级
         // -----------------------
         medium_loop();
 
@@ -740,16 +747,18 @@ static void fast_loop()
         G_Dt_max = delta_ms_fast_loop;
 
     // Read radio
-    // ----------
+    // 读取遥控信号，各个通道接收数据----------
     read_radio();
 
     // try to send any deferred messages if the serial port now has
     // some space available
+	/*说明：程序中声明了两个gcs：gcs0和gcs3，初始化时确定哪个gcs使能，
+	如果现在串行口有一定的可用空间，尝试发送延迟消息*/
     gcs_send_message(MSG_RETRY_DEFERRED);
 
     // check for loss of control signal failsafe condition
     // ------------------------------------
-    check_short_failsafe();
+    check_short_failsafe();//检查丢失控制信号故障安全的条件的损失。
 
 #if HIL_MODE == HIL_MODE_SENSORS
     // update hil before AHRS update
@@ -771,7 +780,7 @@ static void fast_loop()
     // ------------------
 #if INERTIAL_NAVIGATION == ENABLED
     // TODO: implement inertial nav function
-    inertialNavigation();
+    inertialNavigation();//惯性导航，实施惯性导航功能
 #endif
 
     // custom code/exceptions for flight modes
@@ -781,16 +790,18 @@ static void fast_loop()
     // apply desired roll, pitch and yaw to the plane
     // ----------------------------------------------
     if (control_mode > MANUAL)
-        stabilize();
+        stabilize();//应用飞机的滚转、俯仰 偏航参数
 
     // write out the servo PWM values
     // ------------------------------
-    set_servos();
+    set_servos();//设置在当前计算值下的基础上的飞行控制伺服
 
     gcs_update();
-    gcs_data_stream_send();
+    gcs_data_stream_send();//以给定的速率发送数据流
 }
 
+
+/*medium_loop()，这是飞控系统的另外一个核心，执行频率10hz。用于执行GPS数据和磁力计数据的更新、根据GPS数据进行导航计算、更新高度信息和命令、像地面发送无限数传数据、控制slow_loop()执行和其他。其中对导航起很重要作用的导航航向的计算就在mediun_loop()中执行*/
 static void medium_loop()
 {
 #if MOUNT == ENABLED
@@ -810,7 +821,7 @@ static void medium_loop()
     switch(medium_loopCounter) {
 
     // This case deals with the GPS
-    //-------------------------------
+    //GPS的处理命令-------------------------------
     case 0:
         medium_loopCounter++;
         update_GPS();
@@ -828,13 +839,13 @@ static void medium_loop()
         break;
 
     // This case performs some navigation computations
-    //------------------------------------------------
+    //导航计算------------------------------------------------
     case 1:
         medium_loopCounter++;
 
         // Read 6-position switch on radio
         // -------------------------------
-        read_control_switch();
+        read_control_switch();//sensors.pde
 
         // calculate the plane's desired bearing
         // -------------------------------------
@@ -843,7 +854,7 @@ static void medium_loop()
         break;
 
     // command processing
-    //------------------------------
+    //命令处理------------------------------
     case 2:
         medium_loopCounter++;
 
@@ -851,7 +862,7 @@ static void medium_loop()
         // -------------
 #if HIL_MODE != HIL_MODE_ATTITUDE
         if (airspeed.enabled()) {
-            read_airspeed();
+            read_airspeed();//参考AP_Airspeed.h  读取模拟源和更新的速度
         }
 #endif
 
@@ -864,15 +875,15 @@ static void medium_loop()
         // altitude smoothing
         // ------------------
         if (control_mode != FLY_BY_WIRE_B)
-            calc_altitude_error();
+            calc_altitude_error();//参考nacigation.pde
 
         // perform next command
         // --------------------
-        update_commands();
+        update_commands();//commands_process.pde
         break;
 
     // This case deals with sending high rate telemetry
-    //-------------------------------------------------
+    //发送高速率的数据信号-------------------------------------------------
     case 3:
         medium_loopCounter++;
 
@@ -890,7 +901,7 @@ static void medium_loop()
         break;
 
     // This case controls the slow loop
-    //---------------------------------
+    /*控制slow_loop(),slow_loop()函数，执行周期1/3s，主要执行长时间故障安全检查、读取三段	开关、读取舵面正方向及混控开关、读取地面站指令等操作。*/
     case 4:
         medium_loopCounter = 0;
         delta_ms_medium_loop    = millis() - medium_loopTimer_ms;
@@ -962,7 +973,7 @@ static void slow_loop()
         break;
     }
 }
-
+/*执行周期1s。主要执行记录电池电压、发送CPU使用时间等操作*/
 static void one_second_loop()
 {
     if (g.log_bitmask & MASK_LOG_CUR)

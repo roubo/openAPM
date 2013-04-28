@@ -4,7 +4,7 @@
 // Function that controls aileron/rudder, elevator, rudder (if 4 channel control) and throttle to produce desired attitude and airspeed.
 //****************************************************************
 
-
+/*功能：控制副翼、方向舵、升降舵（若为4通道控制）和油门以产生所需的姿态和空速*/
 /*
   get a speed scaling number for control surfaces. This is applied to
   PIDs to change the scaling of the PID with speed. At high speed we
