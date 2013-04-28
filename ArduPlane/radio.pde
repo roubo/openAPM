@@ -1,5 +1,5 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-
+//读取radio数据，限制伺服系统及触发故障安全
 //Function that will read the radio data, limit servos and trigger a failsafe
 // ----------------------------------------------------------------------------
 static uint8_t failsafeCounter = 0;                // we wait a second to take over the throttle and send the plane circling
