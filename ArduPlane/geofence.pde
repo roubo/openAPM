@@ -1,5 +1,5 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-/*
+/*边界读取和存储
  *  geo-fencing support
  *  Andrew Tridgell, December 2011
  */

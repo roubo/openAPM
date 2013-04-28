@@ -1,5 +1,5 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-
+/*用来读写来自DataFlash.log寄存器的包，与用户交互来转储或删除日志*/
 #if LOGGING_ENABLED == ENABLED
 
 // Code to Write and Read packets from DataFlash.log memory
