@@ -2,8 +2,13 @@
 
 #define THISFIRMWARE "ArduPlane V2.68"
 /*
- *  Authors:    Doug Weibel, Jose Julio, Jordi Munoz, Jason Short, Andrew Tridgell, Randy Mackay, Pat Hickey, John Arne Birkeland, Olivier Adler, Amilcar Lucas, Gregory Fletcher
- *  Thanks to:  Chris Anderson, Michael Oborne, Paul Mather, Bill Premerlani, James Cohen, JB from rotorFX, Automatik, Fefenin, Peter Meister, Remzibi, Yury Smirnov, Sandro Benigno, Max Levine, Roberto Navoni, Lorenz Meier, Yury MonZon
+ *  Authors:    Doug Weibel, Jose Julio, Jordi Munoz, Jason Short, Andrew Tridgell, 
+ *              Randy Mackay, Pat Hickey, John Arne Birkeland, Olivier Adler, 
+ *		Amilcar Lucas, Gregory Fletcher
+ *  Thanks to:  Chris Anderson, Michael Oborne, Paul Mather, Bill Premerlani, 
+ *		James Cohen, JB from rotorFX, Automatik, Fefenin, Peter Meister, 
+ *		Remzibi, Yury Smirnov, Sandro Benigno, Max Levine, Roberto Navoni, 
+ *		Lorenz Meier, Yury MonZon
  *  Please contribute your ideas!
  *
  *
@@ -12,16 +17,22 @@
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
  */
-/*在APM飞控系统中，采用的是两极PID控制方式，第一级是导航级，第二级是控制级，导航
-级的计算集中在medium_loop()和fastloop()的update_current_flight_mode()函数中，控
-制级集中在fast_loop的stabilize()函数中。导航级PID控制就是要解决飞机如何一预定空
-速飞行在预定高度的问题，以及如何转弯飞往目标问题，通过算法给出飞机需要的俯仰角、
-油门和横滚角，然后交给控制级进行控制计算。控制级的任务就是依据需要的俯仰角、横
-滚角油门，结合飞机当前的姿态计算出合适的舵机控制量，使飞机保持预定的俯仰角、横
-滚角和方向角。最后通过舵机控制级set_servos_4()将控制量转换成具体的pwm信号量输出
-给舵机。值得一提的是，油门的控制量是在导航级确定的。控制级中不对油门控制量进行
-计算，而直接交给舵机控制级。而对于方向舵的控制，导航级并不给出方向舵量的计算，
-而是由控制级直接计算方向舵控制量，然后再交给舵机控制级。  */
+
+ /*****************************************************************************
+  * 在APM飞控系统中，采用的是两极PID控制方式，第一级是导航级，第二级是控制级，
+  * 导航级的计算集中在medium_loop()和fastloop()的update_current_flight_mode()
+  * 函数中，控制级集中在fast_loop的stabilize()函数中。导航级PID控制就是要解决
+  * 飞机如何一预定空速飞行在预定高度的问题，以及如何转弯飞往目标问题，通过算法
+  * 给出飞机需要的俯仰角、油门和横滚角，然后交给控制级进行控制计算。控制级的任
+  * 务就是依据需要的俯仰角、横滚角油门，结合飞机当前的姿态计算出合适的舵机控制
+  * 量，使飞机保持预定的俯仰角、横滚角和方向角。最后通过舵机控制级set_servos_4()
+  * 将控制量转换成具体的pwm信号量输出给舵机。值得一提的是，油门的控制量是在导航
+  * 级确定的。控制级中不对油门控制量进行计算，而直接交给舵机控制级。而对于方向舵
+  * 的控制，导航级并不给出方向舵量的计算，而是由控制级直接计算方向舵控制量，然后
+  * 再交给舵机控制级。  
+  */
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Header includes
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,29 +46,29 @@
 #include <AP_HAL.h>
 #include <AP_Menu.h>
 #include <AP_Param.h>
-#include <AP_GPS.h>         // ArduPilot GPS library
-#include <AP_Baro.h>        // ArduPilot barometer library
-#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
-#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
-#include <AP_ADC.h>         // ArduPilot Mega Analog to Digital Converter Library
+#include <AP_GPS.h>                   // GPS模块库
+#include <AP_Baro.h>                  // Baromter模块库
+#include <AP_Compass.h>               // 磁力计模块库
+#include <AP_Math.h>                  // 向量和矩阵数学库
+#include <AP_ADC.h>                   // AD转换库
 #include <AP_ADC_AnalogSource.h>
-#include <AP_InertialSensor.h> // Inertial Sensor Library
-#include <AP_AHRS.h>         // ArduPilot Mega DCM Library
-#include <PID.h>            // PID library
-#include <RC_Channel.h>     // RC Channel Library
-#include <AP_RangeFinder.h>     // Range finder library
-#include <Filter.h>                     // Filter library
-#include <AP_Buffer.h>      // APM FIFO Buffer
-#include <AP_Relay.h>       // APM relay
-#include <AP_Camera.h>          // Photo or video camera
-#include <AP_Airspeed.h>
-#include <memcheck.h>
+#include <AP_InertialSensor.h>        // 惯性传感器模块库
+#include <AP_AHRS.h>                  // DCM算法库
+#include <PID.h>                      // PID算法库
+#include <RC_Channel.h>               // RC通道库
+#include <AP_RangeFinder.h>           // Range finder library
+#include <Filter.h>                   // 滤波算法库
+#include <AP_Buffer.h>                // FIFO缓冲库
+#include <AP_Relay.h>                 // APM relay
+#include <AP_Camera.h>                // 摄像头模块库
+#include <AP_Airspeed.h>              // 空速模块库
+#include <memcheck.h>                 // 内存检测库
 
 #include <APM_OBC.h>
 #include <APM_Control.h>
-#include <GCS_MAVLink.h>    // MAVLink GCS definitions
-#include <AP_Mount.h>           // Camera/Antenna mount
-#include <AP_Declination.h> // ArduPilot Mega Declination Helper Library
+#include <GCS_MAVLink.h>              // MAVLink GCS definitions
+#include <AP_Mount.h>                 // Camera/Antenna mount
+#include <AP_Declination.h>           // ArduPilot Mega Declination Helper Library
 #include <DataFlash.h>
 #include <SITL.h>
 
