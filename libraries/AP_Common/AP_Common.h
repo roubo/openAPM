@@ -23,7 +23,15 @@
 #pragma GCC diagnostic warning "-Wextra"
 #pragma GCC diagnostic warning "-Wlogical-op"
 #pragma GCC diagnostic ignored "-Wredundant-decls"
-
+// 在所有的预处理指令中，#Pragma 指令可能是最复杂的了，
+// 它的作用是设定编译器的状态或者是指示编译器完成一些
+// 特定的动作。#pragma指令对每个编译器给出了一个方法，
+// 在保持与C和C++语言完全兼容的情况下，给出主机或操作
+// 系统专有的特征。依据定义，编译指示是机器或操作系统
+// 专有的，且对于每个编译器都是不同的。
+// 详细百科：http://baike.baidu.com/view/1451188.htm
+//
+// 这里作者想让编译器对代码的类型检测更加严格。
 // Make some dire warnings into errors
 //
 // Some warnings indicate questionable code; rather than let
@@ -63,7 +71,7 @@
 /// bit 7: Move to next Command             0: YES,         1: Loiter until commanded
 
 //@{
-
+// 定位信息结构？？
 struct Location {
     uint8_t id;                                                 ///< command id
     uint8_t options;                                    ///< options bitmask (1<<0 = relative altitude)
@@ -84,7 +92,7 @@ struct Location {
 
 
 /*  Product IDs for all supported products follow */
-
+// 支持的产品ID
 #define AP_PRODUCT_ID_NONE                      0x00    // Hardware in the loop
 #define AP_PRODUCT_ID_APM1_1280         0x01    // APM1 with 1280 CPUs
 #define AP_PRODUCT_ID_APM1_2560         0x02    // APM1 with 2560 CPUs

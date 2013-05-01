@@ -9,6 +9,7 @@
 #include "AP_HAL_Boards.h"
 
 /* HAL Module Classes (all pure virtual) */
+// 是类？？这么好。
 #include "UARTDriver.h"
 #include "I2CDriver.h"
 #include "SPIDriver.h"

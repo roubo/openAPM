@@ -40,44 +40,44 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
-
-#include <AP_Common.h>
-#include <AP_Progmem.h>
-#include <AP_HAL.h>
-#include <AP_Menu.h>
-#include <AP_Param.h>
+                                      /********关注的库*********/
+#include <AP_Common.h>                // 通用库，通用的结构体
+#include <AP_Progmem.h>               // 一些C库的补充和校正
+#include <AP_HAL.h>                   // 硬件模块库，包含所有硬件模块的虚拟方法（比较特殊），C++类封装
+#include <AP_Menu.h>                  // 一个CLI命令行接口菜单的实现库
+#include <AP_Param.h>                 // 管理和保存系统感兴趣的一些变量 EEPROM
 #include <AP_GPS.h>                   // GPS模块库
-#include <AP_Baro.h>                  // Baromter模块库
+#include <AP_Baro.h>                  // Baromter气压传感器模块库
 #include <AP_Compass.h>               // 磁力计模块库
 #include <AP_Math.h>                  // 向量和矩阵数学库
-#include <AP_ADC.h>                   // AD转换库
-#include <AP_ADC_AnalogSource.h>
+#include <AP_ADC.h>                   // AD转换底层库
+#include <AP_ADC_AnalogSource.h>      // 获取ADC挂接设备的数据的方法实现
 #include <AP_InertialSensor.h>        // 惯性传感器模块库
 #include <AP_AHRS.h>                  // DCM算法库
 #include <PID.h>                      // PID算法库
 #include <RC_Channel.h>               // RC通道库
-#include <AP_RangeFinder.h>           // Range finder library
+#include <AP_RangeFinder.h>           // 测距仪模块库 包括超声波
 #include <Filter.h>                   // 滤波算法库
 #include <AP_Buffer.h>                // FIFO缓冲库
-#include <AP_Relay.h>                 // APM relay
+#include <AP_Relay.h>                 // 继电器控制库
 #include <AP_Camera.h>                // 摄像头模块库
 #include <AP_Airspeed.h>              // 空速模块库
 #include <memcheck.h>                 // 内存检测库
 
-#include <APM_OBC.h>
-#include <APM_Control.h>
-#include <GCS_MAVLink.h>              // MAVLink GCS definitions
-#include <AP_Mount.h>                 // Camera/Antenna mount
-#include <AP_Declination.h>           // ArduPilot Mega Declination Helper Library
-#include <DataFlash.h>
-#include <SITL.h>
+#include <APM_OBC.h>                  // 故障保护库
+#include <APM_Control.h>              // 三个姿态角的控制库
+#include <GCS_MAVLink.h>              // MAVLink库
+#include <AP_Mount.h>                 // 载具控制库
+#include <AP_Declination.h>           // 偏差库
+#include <DataFlash.h>                // 日志等黑匣子库
+#include <SITL.h>                     // 软件在环库：http://code.google.com/p/ardupilot-mega/wiki/SITL?wl=zh-Hans
 
 // optional new controller library
 #if APM_CONTROL == ENABLED
 #include <APM_Control.h>
 #endif
 
-// Pre-AP_HAL compatibility
+// Pre-AP_HAL compatibility 兼容性
 #include "compat.h"
 
 // Configuration
@@ -93,7 +93,7 @@
 #include <AP_HAL_PX4.h>
 #include <AP_HAL_Empty.h>
 
-AP_HAL::BetterStream* cliSerial;
+AP_HAL::BetterStream* cliSerial; //一个流作为命令行接口的串口，实例
 
 const AP_HAL::HAL& hal = AP_HAL_BOARD_DRIVER;
 
