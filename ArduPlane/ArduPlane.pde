@@ -103,7 +103,7 @@ const AP_HAL::HAL& hal = AP_HAL_BOARD_DRIVER;
 // Outback Challenge Failsafe Support
 ////////////////////////////////////////////////////////////////////////////////
 #if OBC_FAILSAFE == ENABLED
-APM_OBC obc;
+APM_OBC obc;//声明失效保护对象
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -265,7 +265,7 @@ GCS_MAVLINK gcs3;
 ////////////////////////////////////////////////////////////////////////////////
 // Analog Inputs
 ////////////////////////////////////////////////////////////////////////////////
-// 声明ADC对象
+// 声明ADC输入源对象
 AP_HAL::AnalogSource *pitot_analog_source;
 
 // a pin for reading the receiver RSSI voltage. The scaling by 0.25 
@@ -681,18 +681,21 @@ AP_Mount camera_mount2(&current_loc, g_gps, &ahrs, 1);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// Top-level logic
+// Top-level logic 顶层逻辑.......
 ////////////////////////////////////////////////////////////////////////////////
 
 // setup the var_info table
+// ？载入来自EEPROM的1028个字节,1028个字节之后都是放置航点信息？
+// 该函数继承AP_Param类下的AP_Param()函数,载入到_var_info中
 AP_Param param_loader(var_info, WP_START_BYTE);
 
 void setup() {
-    cliSerial = hal.console;
+    cliSerial = hal.console;//CLI接收来自HAL的console对象
 
     // load the default values of variables listed in var_info[]
-    AP_Param::setup_sketch_defaults();//加载默认值
-
+    AP_Param::setup_sketch_defaults();//加载默认值,
+  
+    // 设置ADC的输入源，并设置其分频
     rssi_analog_source = hal.analogin->channel(ANALOG_INPUT_NONE, 0.25);
 
 #if CONFIG_PITOT_SOURCE == PITOT_SOURCE_ADC
@@ -706,6 +709,7 @@ void setup() {
     batt_volt_pin = hal.analogin->channel(g.battery_volt_pin);
     batt_curr_pin = hal.analogin->channel(g.battery_curr_pin);
     
+
     airspeed.init(pitot_analog_source);//参考AP_Airspeed.h
     memcheck_init();//初始化诊断内存，设置标志位
     init_ardupilot();//参考system.pde

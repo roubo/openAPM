@@ -136,7 +136,7 @@ static void init_ardupilot()
     mavlink_system.sysid = g.sysid_this_mav;
 
 #if LOGGING_ENABLED == ENABLED
-    DataFlash.Init();
+    DataFlash.Init();//Flash初始化
     if (!DataFlash.CardInserted()) {
         gcs_send_text_P(SEVERITY_LOW, PSTR("No dataflash card inserted"));
         g.log_bitmask.set(0);
@@ -156,7 +156,7 @@ static void init_ardupilot()
     adc.Init();      // APM ADC library initialization
  #endif
 
-    barometer.init();
+    barometer.init();//气压计初始化
 
     if (g.compass_enabled==true) {
         compass.set_orientation(MAG_ORIENTATION);                                                       // set compass's orientation on aircraft
@@ -173,14 +173,15 @@ static void init_ardupilot()
     ahrs.set_airspeed(&airspeed);
 
 #if APM_CONTROL == ENABLED
+    // 轴控制器初始化
     // the axis controllers need access to the AHRS system
     g.rollController.set_ahrs(&ahrs);
     g.pitchController.set_ahrs(&ahrs);
     g.yawController.set_ahrs(&ahrs);
 #endif
-
-	// Do GPS init
-	g_gps = &g_gps_driver;
+    // GPS初始化
+    // Do GPS init
+       g_gps = &g_gps_driver;
     // GPS Initialization
     g_gps->init(hal.uartB, GPS::GPS_ENGINE_AIRBORNE_4G);
 
@@ -191,8 +192,8 @@ static void init_ardupilot()
     // Set initial values for no override
     rc_override_active = hal.rcin->set_overrides(rc_override, 8);
 
-    init_rc_in();               // sets up rc channels from radio
-    init_rc_out();              // sets up the timer libs
+    init_rc_in();               // sets up rc channels from radio 无线电接收口初始化
+    init_rc_out();              // sets up the timer libs PWM输出初始化
 
     pinMode(C_LED_PIN, OUTPUT);                         // GPS status LED
     pinMode(A_LED_PIN, OUTPUT);                         // GPS status LED
