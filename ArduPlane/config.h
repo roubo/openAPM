@@ -87,7 +87,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // main board differences
-//
+// 不同的飞控不同的配置参数
 #if CONFIG_HAL_BOARD == HAL_BOARD_APM1
  # define A_LED_PIN        37
  # define B_LED_PIN        36

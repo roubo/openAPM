@@ -84,6 +84,7 @@
 #include "config.h"
 
 // Local modules
+// 本地的，全局的，重要的类定义
 #include "defines.h"
 #include "Parameters.h"
 #include "GCS.h"
@@ -106,8 +107,9 @@ APM_OBC obc;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// the rate we run the main loop at
+// the rate we run the main loop at 惯性测量传感单元的更新速度50HZ
 ////////////////////////////////////////////////////////////////////////////////
+//来自AP_InertialSensor类，该类下包含了惯性单元的各种方法
 static const AP_InertialSensor::Sample_rate ins_sample_rate = AP_InertialSensor::RATE_50HZ;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +117,7 @@ static const AP_InertialSensor::Sample_rate ins_sample_rate = AP_InertialSensor:
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Global parameters are all contained within the 'g' class.
-//
+// 声明全局变量
 static Parameters g;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +126,7 @@ static void update_events(void);
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// DataFlash
+// DataFlash  声明Flash对象
 ////////////////////////////////////////////////////////////////////////////////
 #if CONFIG_HAL_BOARD == HAL_BOARD_APM1
 DataFlash_APM1 DataFlash;
@@ -151,11 +153,13 @@ DataFlash_Empty DataFlash;
 //
 
 // All GPS access should be through this pointer.
+// 声明GPS对象
 static GPS         *g_gps;
 
 // flight modes convenience array
+// 声明飞机模式
 static AP_Int8          *flight_modes = &g.flight_mode1;
-
+// 真实模式下的声明--------------------
 #if HIL_MODE == HIL_MODE_DISABLED
 
 // real sensors
@@ -190,7 +194,7 @@ static AP_Compass_PX4 compass;
 static AP_Compass_HMC5843 compass;
 #endif
  #endif
-
+// 根据配置确定GPS的具体协议
 // real GPS selection
  #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
 AP_GPS_Auto     g_gps_driver(&g_gps);
@@ -217,6 +221,7 @@ AP_GPS_None     g_gps_driver();
   #error Unrecognised GPS_PROTOCOL setting.
  #endif // GPS PROTOCOL
 
+// 根据配置确定惯性传感单元类型
  # if CONFIG_INS_TYPE == CONFIG_INS_MPU6000
 AP_InertialSensor_MPU6000 ins;
  # elif CONFIG_INS_TYPE == CONFIG_INS_PX4
@@ -224,7 +229,7 @@ AP_InertialSensor_PX4 ins;
  # elif CONFIG_HAL_BOARD != HAL_BOARD_AVR_SITL
 AP_InertialSensor_Oilpan ins( &adc );
  #endif // CONFIG_INS_TYPE
-
+// 声明AHRS的DCM算法，可以看到需要惯性单元和GPS
 AP_AHRS_DCM ahrs(&ins, g_gps);
 
 #elif HIL_MODE == HIL_MODE_SENSORS
@@ -253,13 +258,14 @@ static bool training_manual_pitch; // user has manual pitch control
 ////////////////////////////////////////////////////////////////////////////////
 // GCS selection
 ////////////////////////////////////////////////////////////////////////////////
+// 声明地面站对象
 GCS_MAVLINK gcs0;
 GCS_MAVLINK gcs3;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Analog Inputs
 ////////////////////////////////////////////////////////////////////////////////
-
+// 声明ADC对象
 AP_HAL::AnalogSource *pitot_analog_source;
 
 // a pin for reading the receiver RSSI voltage. The scaling by 0.25 
@@ -274,6 +280,7 @@ AP_HAL::AnalogSource * batt_curr_pin;
 ////////////////////////////////////////////////////////////////////////////////
 // Relay
 ////////////////////////////////////////////////////////////////////////////////
+// 声明继电器对象
 AP_Relay relay;
 
 // Camera
@@ -284,12 +291,12 @@ AP_Camera camera(&relay);
 ////////////////////////////////////////////////////////////////////////////////
 // Global variables
 ////////////////////////////////////////////////////////////////////////////////
-
+// 全局变量声明
 // APM2 only
 #if USB_MUX_PIN > 0
 static bool usb_connected;
 #endif
-
+// 遥控接口
 /* Radio values
  *               Channel assignments
  *                       1   Ailerons
@@ -327,7 +334,7 @@ static uint16_t ch2_temp        = 1500;
 static int16_t rc_override[8] = {0,0,0,0,0,0,0,0};
 // A flag if GCS joystick control is in use
 static bool rc_override_active = false;
-
+// 失控保护
 ////////////////////////////////////////////////////////////////////////////////
 // Failsafe
 ////////////////////////////////////////////////////////////////////////////////
@@ -346,7 +353,7 @@ static uint32_t last_heartbeat_ms;
 
 // A timer used to track how long we have been in a "short failsafe" condition due to loss of RC signal
 static uint32_t ch3_failsafe_timer = 0;
-
+// LED
 ////////////////////////////////////////////////////////////////////////////////
 // LED output
 ////////////////////////////////////////////////////////////////////////////////

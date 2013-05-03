@@ -160,3 +160,6 @@ namespace AP_HAL {
         SPIDevice_ADNS3080_SPI3
     };
 }
+分析第三步
+----------
+系统和模块的初始化流程分析
