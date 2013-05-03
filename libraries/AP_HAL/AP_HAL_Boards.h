@@ -21,7 +21,7 @@
   board. This prevents us having a mess of ifdefs in every example
   sketch
  */
-
+/*根据配置，选择硬件，其实是选择HAL类的实例内容和实现方式*/
 #if CONFIG_HAL_BOARD == HAL_BOARD_APM1
 #define AP_HAL_BOARD_DRIVER AP_HAL_AVR_APM1
 #elif CONFIG_HAL_BOARD == HAL_BOARD_APM2

@@ -102,3 +102,61 @@ Build a package using cpack
 
 
 vim:ts=4:sw=4:expandtab
+
+分析第一步
+----------
+分析源码结构，从主文件的头文件引用入手。
+1、分析引用路径，摸清源码文件分布结构。
+2、分析模块库使用情况，摸清系统使用的硬件和算法等相关模块的总类。
+3、明确今后重点分析的模块文件。
+
+分析第二步
+-----------
+分析类的组织结构，这个可以看看类的namespace
+namespace AP_HAL {
+
+    /* Toplevel pure virtual class Hal.*/
+    class HAL;
+
+    /* Toplevel class names for drivers: */
+    class UARTDriver;
+    class I2CDriver;
+
+    class SPIDeviceDriver;
+    class SPIDeviceManager;
+
+    class AnalogSource;
+    class AnalogIn;
+    class Storage;
+    class ConsoleDriver;
+    class DigitalSource;
+    class GPIO;
+    class RCInput;
+    class RCOutput;
+    class Scheduler;
+    class Semaphore;
+    
+    class Util;
+
+    /* Utility Classes */
+    class Print;
+    class Stream;
+    class BetterStream;
+
+    /* Typdefs for function pointers (Procedure, Timed Procedure) */
+    typedef void(*Proc)(void);
+    typedef void(*TimedProc)(uint32_t);
+
+    /**
+     * Global names for all of the existing SPI devices on all platforms.
+     */
+
+    enum SPIDevice {
+        SPIDevice_Dataflash,
+        SPIDevice_ADS7844,
+        SPIDevice_MS5611,
+        SPIDevice_MPU6000,
+        SPIDevice_ADNS3080_SPI0,
+        SPIDevice_ADNS3080_SPI3
+    };
+}

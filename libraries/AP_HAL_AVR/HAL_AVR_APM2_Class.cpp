@@ -12,11 +12,11 @@
 
 using namespace AP_HAL;
 using namespace AP_HAL_AVR;
-
+/*设置中断向量号*/
 AVRUARTDriverISRs(0);
 AVRUARTDriverISRs(1);
 AVRUARTDriverISRs(2);
-
+/*设置中断处理函数*/
 AVRUARTDriverInstance(avrUart0Driver, 0);
 AVRUARTDriverInstance(avrUart1Driver, 1);
 AVRUARTDriverInstance(avrUart2Driver, 2);
