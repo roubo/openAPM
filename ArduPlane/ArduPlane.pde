@@ -710,9 +710,9 @@ void setup() {
     batt_curr_pin = hal.analogin->channel(g.battery_curr_pin);
     
 
-    airspeed.init(pitot_analog_source);//参考AP_Airspeed.h
+    airspeed.init(pitot_analog_source);//空速初始化，参考AP_Airspeed.h
     memcheck_init();//初始化诊断内存，设置标志位
-    init_ardupilot();//参考system.pde
+    init_ardupilot();//剩余其他初始化，参考system.pde
 }
 
 void loop()
