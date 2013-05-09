@@ -526,7 +526,7 @@ static bool telemetry_delayed(mavlink_channel_t chan)
 #endif
 }
 
-
+//被send_message()调用，每次都要经过mavlink_try_send_message（）函数来发送消息
 // try to send a message, return false if it won't fit in the serial tx buffer
 static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id, uint16_t packet_drops)
 {
@@ -535,7 +535,7 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
     if (telemetry_delayed(chan)) {
         return false;
     }
-
+//发送消息时，是根据消息的ID号发送的，msg->id
     switch (id) {
     case MSG_HEARTBEAT:
         CHECK_PAYLOAD_SIZE(HEARTBEAT);
@@ -968,6 +968,9 @@ GCS_MAVLINK::send_text_P(gcs_severity severity, const prog_char_t *str)
     mavlink_send_text(chan, severity, (const char *)m.text);
 }
 
+
+/*handlemessage是非常重要的一个函数，里面包含了对各种消息的处理，都是
+根据msg->做的操作，可见将信息的ID号读取出来是多么重要的一件事*/
 void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 {
     struct Location tell_command = {};                // command for telemetry
