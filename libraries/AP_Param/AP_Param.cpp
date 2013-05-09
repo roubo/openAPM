@@ -59,6 +59,7 @@ extern const AP_HAL::HAL &hal;
 
 // max EEPROM write size. This is usually less than the physical
 // size as only part of the EEPROM is reserved for parameters
+//最大的eeprom的可写大小，通常比物理大小要小一些，eeprom的一部分要为参数保留
 uint16_t AP_Param::_eeprom_size;
 
 // number of rows in the _var_info[] table
@@ -69,6 +70,8 @@ const AP_Param::Info *AP_Param::_var_info;
 
 // write to EEPROM, checking each byte to avoid writing
 // bytes that are already correct
+//写eeprom，检测每一个字节避免写入已经是正确的值，也就是说，
+//当值改变时，我们才写入，如果值为改变，我们就不去再重新写一遍了
 void AP_Param::eeprom_write_check(const void *ptr, uint16_t ofs, uint8_t size)
 {
     const uint8_t *b = (const uint8_t *)ptr;
@@ -424,6 +427,7 @@ const struct AP_Param::Info *AP_Param::find_var_info_token(const ParamToken *tok
 }
 
 // return the storage size for a AP_PARAM_* type
+//返回AP_PARAM指针的类型，即参数的类型
 uint8_t AP_Param::type_size(enum ap_var_type type)
 {
     switch (type) {
@@ -453,6 +457,8 @@ uint8_t AP_Param::type_size(enum ap_var_type type)
 // return true if found, along with the offset in the EEPROM where
 // the variable is stored
 // if not found return the offset of the sentinal, or
+//扫描EEPROM寻找head内容中给出的变量，如果找到返回true并将在EEPROM存储的偏移量
+//给出，若没有找到返回sentinal的偏移量
 bool AP_Param::scan(const AP_Param::Param_header *target, uint16_t *pofs)
 {
     struct Param_header phdr;
@@ -666,6 +672,11 @@ AP_Param::find_object(const char *name)
     }
     return NULL;
 }
+//由上面得出：我们可以根据要查询的名字，索引号，或对象的名字等等来查询eeprom
+//以得到我们想要的东西，还有一点，这里面提到两个非常重要的变量group_info
+// 和var_info
+
+
 
 
 // Save the variable to EEPROM, if supported
@@ -762,6 +773,7 @@ bool AP_Param::load(void)
     struct Param_header phdr;
 
     // create the header we will use to match the variable
+	//创建一个变量头，我们可以用于匹配变量
     if (ginfo != NULL) {
         phdr.type = PGM_UINT8(&ginfo->type);
     } else {
@@ -771,9 +783,12 @@ bool AP_Param::load(void)
     phdr.group_element = group_element;
 
     // scan EEPROM to find the right location
+	//扫描EEPROM来找到正确的位置
     uint16_t ofs;
     if (!scan(&phdr, &ofs)) {
         // if the value isn't stored in EEPROM then set the default value
+	//如果某一个变量没有存储在EEPROM中，则设置成默认值，也就是说，
+	//其实每一个地址放的是固定变量的值，如果没有也会保留出来
         if (ginfo != NULL) {
             uintptr_t base = PGM_POINTER(&info->ptr);
             set_value((enum ap_var_type)phdr.type, (void*)(base + PGM_UINT16(&ginfo->offset)),

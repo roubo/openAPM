@@ -799,8 +799,18 @@ static void fast_loop()
     // write out the servo PWM values
     // ------------------------------
     set_servos();//设置在当前计算值下的基础上的飞行控制伺服
-
+   /*gcs_udate()是一个非常重要的函数，gcs_update函数中包含了两个函数gcs0_update
+	和gcs3_update，而gcs0和gcs3都是继承的GCS_MAVLINK,也就继承了GCS_MAVLINK
+	的update，update函数中包含了消息处理函数--handdlemessage（），消息处理
+	函数处理的消息是通过串口接收得到，串口的中断处理函数中，将串口的得到的
+	值先放到一个缓冲区内，然后在消息处理函数中，我们再去一个字节一个字节的
+	读取，判断，并做相应的处理，send_message（）*/
     gcs_update();
+  
+	/*gcs_data_stream_send()是以固定的格式发送的数据流，包含10部分的内容
+       包括陀螺仪，加速度计的数据，实时模式，电池电压，当前的位置（经度，
+	纬度，高度），自驾仪当前的伺服输出，当前遥控输入值，当前GPS状态，当前
+	航点，当前的滚转，俯仰，偏航角*/
     gcs_data_stream_send();//以给定的速率发送数据流
 }
 
