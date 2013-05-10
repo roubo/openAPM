@@ -856,6 +856,10 @@ void AP_Param::setup_object_defaults(const void *object_pointer, const struct Gr
 
 // load default values for all scalars in a sketch. This does not
 // recurse into sub-objects
+/* setup中检测一下三个定值，如果有错误则擦除EEPROM，而且在setup中得到了信息的
+ 数量vars_num，并得到每一个信息的类型，通过PGM_UINT8再调用pgm_read_byte_far
+ 得到，然后通过PGM_POINTER得到信息的内容PGM_POINTER调用了pgm_read_pointer
+ pgm_read_pointer又调用了pgm_read_word(s)和pgm_read_byte，*/
 void AP_Param::setup_sketch_defaults(void)
 {
     setup();

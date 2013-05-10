@@ -1067,7 +1067,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         switch(packet.command) {
 
         case MAV_CMD_NAV_LOITER_UNLIM:
-            set_mode(LOITER);
+            set_mode(LOITER);//set_mode()实现的就是对EEPROM的写入
             result = MAV_RESULT_ACCEPTED;
             break;
 

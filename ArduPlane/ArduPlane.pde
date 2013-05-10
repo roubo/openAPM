@@ -667,12 +667,17 @@ AP_Mount camera_mount2(&current_loc, g_gps, &ahrs, 1);
 ////////////////////////////////////////////////////////////////////////////////
 
 // setup the var_info table
+//初始化一个信息表var_info,并去检测表的大小
 AP_Param param_loader(var_info, WP_START_BYTE);
 
 void setup() {
     cliSerial = hal.console;
 
     // load the default values of variables listed in var_info[]
+    /*setup_sketch_defaults()首先
+  调用函数setup（），去检测EEPROM的头，EEPROM的三个值是固定的，hdr.magic[0] 
+ 和hdr.magic[1]和hdr.revision是固定的，如果不正确的话就擦除EEPROM，在setup（）
+ 中的到了var的数量即vars_num， */
     AP_Param::setup_sketch_defaults();//加载默认值
 
     rssi_analog_source = hal.analogin->channel(ANALOG_INPUT_NONE, 0.25);
@@ -690,6 +695,9 @@ void setup() {
     
     airspeed.init(pitot_analog_source);//参考AP_Airspeed.h
     memcheck_init();//初始化诊断内存，设置标志位
+    /*init_ardupilot()中有一个函数load_parameters()在这个函数中，将EEPROM中的值
+	载入到_var_info中，而_var_info 和var_info是可以映射过去的，至此我们就将
+   EEPROM的值load了出来，*/
     init_ardupilot();//参考system.pde
 }
 
@@ -741,6 +749,7 @@ void loop()
         }
     }
 }
+
 
 // Main loop 50Hz
 static void fast_loop()
