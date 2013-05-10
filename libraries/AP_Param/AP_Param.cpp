@@ -855,7 +855,7 @@ void AP_Param::setup_sketch_defaults(void)
 
 
 // Load all variables from EEPROM
-//
+// 将所有EEPROM数据导入到_var_info中，主要是ptr指针的映射
 bool AP_Param::load_all(void)
 {
     struct Param_header phdr;

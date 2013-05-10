@@ -62,6 +62,8 @@ public:
     // the Info and GroupInfo structures are passed by the main
     // program in setup() to give information on how variables are
     // named and their location in memory
+    // 下面两个结构体是理解EEPROM在系统中的工作原理的重点，按照它的解释
+    //  在主函数setup中被传递来给出各变量的命名和在EEPROM中的位置
     struct GroupInfo {
         uint8_t type; // AP_PARAM_*
         uint8_t idx;  // identifier within the group
