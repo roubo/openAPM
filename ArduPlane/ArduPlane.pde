@@ -694,7 +694,7 @@ void setup() {
     cliSerial = hal.console;//CLI接收来自HAL的console对象
 
     // load the default values of variables listed in var_info[]
-  
+
   
     /*setup_sketch_defaults()首先
   调用函数setup（），去检测EEPROM的头，EEPROM的三个值是固定的，hdr.magic[0] 
@@ -719,7 +719,7 @@ void setup() {
 
     airspeed.init(pitot_analog_source);//空速初始化，参考AP_Airspeed.h
     memcheck_init();//初始化诊断内存，设置标志位
-   
+
     /*init_ardupilot()中有一个函数load_parameters()在这个函数中，将EEPROM中的值
 	载入到_var_info中，而_var_info 和var_info是可以映射过去的，至此我们就将
    EEPROM的值load了出来，*/
