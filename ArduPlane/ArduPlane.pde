@@ -687,14 +687,21 @@ AP_Mount camera_mount2(&current_loc, g_gps, &ahrs, 1);
 // setup the var_info table
 // ？载入来自EEPROM的1028个字节,1028个字节之后都是放置航点信息？
 // 该函数继承AP_Param类下的AP_Param()函数,载入到_var_info中
+//初始化一个信息表var_info,并去检测表的大小
 AP_Param param_loader(var_info, WP_START_BYTE);
 
 void setup() {
     cliSerial = hal.console;//CLI接收来自HAL的console对象
 
     // load the default values of variables listed in var_info[]
-    AP_Param::setup_sketch_defaults();//加载默认值,
   
+  
+    /*setup_sketch_defaults()首先
+  调用函数setup（），去检测EEPROM的头，EEPROM的三个值是固定的，hdr.magic[0] 
+ 和hdr.magic[1]和hdr.revision是固定的，如果不正确的话就擦除EEPROM，在setup（）
+ 中的到了var的数量即vars_num， */
+    AP_Param::setup_sketch_defaults();//加载默认值
+
     // 设置ADC的输入源，并设置其分频
     rssi_analog_source = hal.analogin->channel(ANALOG_INPUT_NONE, 0.25);
 
@@ -712,7 +719,12 @@ void setup() {
 
     airspeed.init(pitot_analog_source);//空速初始化，参考AP_Airspeed.h
     memcheck_init();//初始化诊断内存，设置标志位
-    init_ardupilot();//剩余其他初始化，参考system.pde
+   
+    /*init_ardupilot()中有一个函数load_parameters()在这个函数中，将EEPROM中的值
+	载入到_var_info中，而_var_info 和var_info是可以映射过去的，至此我们就将
+   EEPROM的值load了出来，*/
+    init_ardupilot();//参考system.pde
+
 }
 
 void loop()
@@ -763,6 +775,7 @@ void loop()
         }
     }
 }
+
 
 // Main loop 50Hz
 static void fast_loop()
@@ -821,8 +834,18 @@ static void fast_loop()
     // write out the servo PWM values
     // ------------------------------
     set_servos();//设置在当前计算值下的基础上的飞行控制伺服
-
+   /*gcs_udate()是一个非常重要的函数，gcs_update函数中包含了两个函数gcs0_update
+	和gcs3_update，而gcs0和gcs3都是继承的GCS_MAVLINK,也就继承了GCS_MAVLINK
+	的update，update函数中包含了消息处理函数--handdlemessage（），消息处理
+	函数处理的消息是通过串口接收得到，串口的中断处理函数中，将串口的得到的
+	值先放到一个缓冲区内，然后在消息处理函数中，我们再去一个字节一个字节的
+	读取，判断，并做相应的处理，send_message（）*/
     gcs_update();
+  
+	/*gcs_data_stream_send()是以固定的格式发送的数据流，包含10部分的内容
+       包括陀螺仪，加速度计的数据，实时模式，电池电压，当前的位置（经度，
+	纬度，高度），自驾仪当前的伺服输出，当前遥控输入值，当前GPS状态，当前
+	航点，当前的滚转，俯仰，偏航角*/
     gcs_data_stream_send();//以给定的速率发送数据流
 }
 

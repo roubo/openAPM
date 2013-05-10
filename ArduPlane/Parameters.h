@@ -14,7 +14,7 @@ public:
      *  The value of k_format_version determines whether the existing
      *  eeprom data is considered valid. You should only change this
      *  value under the following circumstances:
-     *
+     *k_format_version的值决定了存在的eeprom的数据是否是有效的
      *  1) the meaning of an existing eeprom parameter changes
      *
      *  2) the value of an existing k_param_* enum value changes
@@ -47,7 +47,10 @@ public:
 
     enum {
         // Layout version number, always key zero.
-        //
+        //info 里面存的信息，var_info[],我们是从EEPROM中读取的这些信息，
+        //也就是说当我们从eeprom读取这些信息时，是按下面枚举的信息存储的，
+        //并且有固定的位置。
+
         k_param_format_version = 0,
         k_param_software_type,
         k_param_num_resets,
