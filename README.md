@@ -171,3 +171,6 @@ namespace AP_HAL {
 	EEPROM
 	------
 在系统运行时，如何从EEPROM中导出各种数据参数到RAM中，也就是全局变量var_info[]中。见分析图 pic/EEPROM资源流程.png
+	IMU
+	------
+
