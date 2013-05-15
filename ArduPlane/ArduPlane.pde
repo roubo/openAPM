@@ -195,6 +195,7 @@ static AP_Compass_HMC5843 compass;
 #endif
  #endif
 // 根据配置确定GPS的具体协议
+//根据GPS的不同型号来确定具体的协议
 // real GPS selection
  #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
 AP_GPS_Auto     g_gps_driver(&g_gps);
@@ -283,6 +284,7 @@ AP_HAL::AnalogSource * batt_curr_pin;
 // 声明继电器对象
 AP_Relay relay;
 
+//声明摄像头对象
 // Camera
 #if CAMERA == ENABLED
 AP_Camera camera(&relay);
@@ -370,6 +372,7 @@ static const float t7                        = 10000000.0;
 // We use atan2 and other trig techniques to calaculate angles
 // A counter used to count down valid gps fixes to allow the gps estimate to settle
 // before recording our home position (and executing a ground start if we booted with an air start)
+//当卫星数达到5颗时，才能找到home的位置？
 static uint8_t ground_start_count      = 5;
 // Used to compute a speed estimate from the first valid gps fixes to decide if we are
 // on the ground or in the air.  Used to decide if a ground start is appropriate if we
@@ -387,21 +390,21 @@ const float radius_of_earth   = 6378100;        // meters
 
 // This is the currently calculated direction to fly.
 // deg * 100 : 0 to 360
-static int32_t nav_bearing_cd;
+static int32_t nav_bearing_cd;//当前计算的飞行的方向
 
 // This is the direction to the next waypoint or loiter center
 // deg * 100 : 0 to 360
-static int32_t target_bearing_cd;
+static int32_t target_bearing_cd;//下一个航点和盘旋中心的方向
 
 //This is the direction from the last waypoint to the next waypoint
 // deg * 100 : 0 to 360
-static int32_t crosstrack_bearing_cd;
+static int32_t crosstrack_bearing_cd;//最新航点到下一航点的方向
 
-// Direction held during phases of takeoff and landing
+// Direction held during phases of takeoff and landing起飞和降落的相位的方向 
 // deg * 100 dir of plane,  A value of -1 indicates the course has not been set/is not in use
 static int32_t hold_course                   = -1;              // deg * 100 dir of plane
 
-// There may be two active commands in Auto mode.
+// There may be two active commands in Auto mode.自动模式分为两种，一种有导航命令，一种无导航命令
 // This indicates the active navigation command by index number
 static uint8_t nav_command_index;
 // This indicates the active non-navigation command by index number
@@ -415,17 +418,17 @@ static uint8_t non_nav_command_ID      = NO_COMMAND;
 ////////////////////////////////////////////////////////////////////////////////
 // The calculated airspeed to use in FBW-B.  Also used in higher modes for insuring min ground speed is met.
 // Also used for flap deployment criteria.  Centimeters per second.
-static int32_t target_airspeed_cm;
+static int32_t target_airspeed_cm;//计算出的空速值用于FBW
 
 // The difference between current and desired airspeed.  Used in the pitch controller.  Centimeters per second.
-static float airspeed_error_cm;
+static float airspeed_error_cm;//当前和预计的空速的不同，用于俯仰控制
 
 // The calculated total energy error (kinetic (altitude) plus potential (airspeed)).
 // Used by the throttle controller
-static int32_t energy_error;
+static int32_t energy_error;//计算出的总的电量误差，用于油门控制
 
 // kinetic portion of energy error (m^2/s^2)
-static int32_t airspeed_energy_error;
+static int32_t airspeed_energy_error;//电量误差的运动部分
 
 // An amount that the airspeed should be increased in auto modes based on the user positioning the
 // throttle stick in the top half of the range.  Centimeters per second.
@@ -433,17 +436,17 @@ static int16_t airspeed_nudge_cm;
 
 // Similar to airspeed_nudge, but used when no airspeed sensor.
 // 0-(throttle_max - throttle_cruise) : throttle nudge in Auto mode using top 1/2 of throttle stick travel
-static int16_t throttle_nudge = 0;
+static int16_t throttle_nudge = 0;//当没有空速计时使用
 
 // receiver RSSI
-static uint8_t receiver_rssi;
+static uint8_t receiver_rssi;//接收信号强度
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Ground speed
 ////////////////////////////////////////////////////////////////////////////////
 // The amount current ground speed is below min ground speed.  Centimeters per second
-static int32_t groundspeed_undershoot = 0;
+static int32_t groundspeed_undershoot = 0;//当前地面速度小于最小地面速度（最小地面速度应该是起飞时所需的最小速度）
 
 ////////////////////////////////////////////////////////////////////////////////
 // Location Errors
@@ -452,13 +455,13 @@ static int32_t groundspeed_undershoot = 0;
 static int32_t bearing_error_cd;
 
 // Difference between current altitude and desired altitude.  Centimeters
-static int32_t altitude_error_cm;
+static int32_t altitude_error_cm;//当前高度和期望高度的差
 
 // Distance perpandicular to the course line that we are off trackline.  Meters
 static float crosstrack_error;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Battery Sensors
+// Battery Sensors 电压传感器
 ////////////////////////////////////////////////////////////////////////////////
 // Battery pack 1 voltage.  Initialized above the low voltage threshold to pre-load the filter and prevent low voltage events at startup.
 static float battery_voltage1        = LOW_VOLTAGE * 1.05;
@@ -473,7 +476,7 @@ static float current_total1;
 //static float	current_total2;									// Totalized current (Amp-hours) from battery 2
 
 ////////////////////////////////////////////////////////////////////////////////
-// Airspeed Sensors
+// Airspeed Sensors 空速传感器
 ////////////////////////////////////////////////////////////////////////////////
 AP_Airspeed airspeed;
 
@@ -498,7 +501,7 @@ static int16_t takeoff_pitch_cd;
 static bool throttle_suppressed;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Loiter management
+// Loiter management  盘旋管理
 ////////////////////////////////////////////////////////////////////////////////
 // Previous target bearing.  Used to calculate loiter rotations.  Hundredths of a degree
 static int32_t old_target_bearing_cd;
@@ -519,7 +522,7 @@ static uint32_t loiter_time_ms;
 static uint32_t loiter_time_max_ms;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Navigation control variables
+// Navigation control variables  导航控制变量
 ////////////////////////////////////////////////////////////////////////////////
 // The instantaneous desired bank angle.  Hundredths of a degree
 static int32_t nav_roll_cd;
@@ -528,16 +531,17 @@ static int32_t nav_roll_cd;
 static int32_t nav_pitch_cd;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Waypoint distances
+// Waypoint distances 航点距离
 ////////////////////////////////////////////////////////////////////////////////
 // Distance between plane and next waypoint.  Meters
 // is not static because AP_Camera uses it
 int32_t wp_distance;
 
 // Distance between previous and next waypoint.  Meters
+//当前航点与下一航点的距离
 static int32_t wp_totalDistance;
 
-// event control state
+// event control state  事件控制状态，控制继电器还是伺服系统
 enum event_type { 
     EVENT_TYPE_RELAY=0,
     EVENT_TYPE_SERVO=1
@@ -555,10 +559,10 @@ static struct {
 	// how many times to cycle : -1 (or -2) = forever, 2 = do one cycle, 4 = do two cycles
     int16_t repeat;
 
-    // RC channel for servos
+    // RC channel for servos 伺服系统的遥控通道
     uint8_t rc_channel;
 
-	// PWM for servos
+	// PWM for servos 给伺服系统的PWM波
 	uint16_t servo_value;
 
 	// the value used to cycle events (alternate value to event_value)
@@ -567,7 +571,7 @@ static struct {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Conditional command
+// Conditional command 特定条件的命令
 ////////////////////////////////////////////////////////////////////////////////
 // A value used in condition commands (eg delay, change alt, etc.)
 // For example in a change altitude command, it is the altitude to change to.
@@ -579,7 +583,7 @@ static uint32_t condition_start;
 static int16_t condition_rate;
 
 ////////////////////////////////////////////////////////////////////////////////
-// 3D Location vectors
+// 3D Location vectors 3D位置向量
 // Location structure defined in AP_Common
 ////////////////////////////////////////////////////////////////////////////////
 // The home location used for RTL.  The location is set when we first get stable GPS lock
@@ -600,7 +604,7 @@ static struct   Location next_nav_command;
 static struct   Location next_nonnav_command;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Altitude / Climb rate control
+// Altitude / Climb rate control  高度速度控制
 ////////////////////////////////////////////////////////////////////////////////
 // The current desired altitude.  Altitude is linearly ramped between waypoints.  Centimeters
 static int32_t target_altitude_cm;
@@ -608,14 +612,14 @@ static int32_t target_altitude_cm;
 static int32_t offset_altitude_cm;
 
 ////////////////////////////////////////////////////////////////////////////////
-// INS variables
+// INS variables  惯性测量单元变量
 ////////////////////////////////////////////////////////////////////////////////
 // The main loop execution time.  Seconds
 //This is the time between calls to the DCM algorithm and is the Integration time for the gyros.
 static float G_Dt                                               = 0.02;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Performance monitoring
+// Performance monitoring  性能监视
 ////////////////////////////////////////////////////////////////////////////////
 // Timer used to accrue data and trigger recording of the performanc monitoring log message
 static int32_t perf_mon_timer;
@@ -629,7 +633,7 @@ static int16_t pmTest1 = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// System Timers
+// System Timers 系统时间
 ////////////////////////////////////////////////////////////////////////////////
 // Time in miliseconds of start of main control loop.  Milliseconds
 static uint32_t fast_loopTimer_ms;

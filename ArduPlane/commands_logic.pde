@@ -3,6 +3,7 @@
 /********************************************************************************/
 // Command Event Handlers
 /********************************************************************************/
+//导航命令的处理过程
 static void
 handle_process_nav_cmd()
 {
@@ -48,7 +49,7 @@ handle_process_nav_cmd()
         break;
     }
 }
-
+//条件命令的处理过程
 static void
 handle_process_condition_command()
 {
@@ -71,7 +72,7 @@ handle_process_condition_command()
         break;
     }
 }
-
+//执行命令的处理过程
 static void handle_process_do_command()
 {
     gcs_send_text_fmt(PSTR("Executing command ID #%i"),next_nonnav_command.id);
@@ -142,7 +143,7 @@ static void handle_process_do_command()
 #endif
     }
 }
-
+//空命令的处理过程
 static void handle_no_commands()
 {
     gcs_send_text_fmt(PSTR("Returning to Home"));
@@ -158,7 +159,7 @@ static void handle_no_commands()
 /********************************************************************************/
 // Verify command Handlers
 /********************************************************************************/
-
+//导航命令的确认
 static bool verify_nav_command()        // Returns true if command complete
 {
     switch(nav_command_ID) {
@@ -189,7 +190,7 @@ static bool verify_nav_command()        // Returns true if command complete
     }
     return false;
 }
-
+//条件命令的确认
 static bool verify_condition_command()          // Returns true if command complete
 {
     switch(non_nav_command_ID) {
@@ -223,7 +224,7 @@ static bool verify_condition_command()          // Returns true if command compl
 /********************************************************************************/
 //  Nav (Must) commands
 /********************************************************************************/
-
+//返航命令的执行
 static void do_RTL(void)
 {
     control_mode    = RTL;
@@ -238,7 +239,7 @@ static void do_RTL(void)
     if (g.log_bitmask & MASK_LOG_MODE)
         Log_Write_Mode(control_mode);
 }
-
+//起飞命令的执行
 static void do_takeoff()
 {
     set_next_WP(&next_nav_command);
@@ -250,28 +251,28 @@ static void do_takeoff()
     takeoff_complete        = false;                            // set flag to use gps ground course during TO.  IMU will be doing yaw drift correction
     // Flag also used to override "on the ground" throttle disable
 }
-
+//下一个航点命令的执行
 static void do_nav_wp()
 {
     set_next_WP(&next_nav_command);
 }
-
+//降落命令的执行
 static void do_land()
 {
     set_next_WP(&next_nav_command);
 }
-
+//盘旋无限制命令的执行
 static void do_loiter_unlimited()
 {
     set_next_WP(&next_nav_command);
 }
-
+//盘旋转弯命令的执行
 static void do_loiter_turns()
 {
     set_next_WP(&next_nav_command);
     loiter_total = next_nav_command.p1 * 360;
 }
-
+//盘旋时间命令的执行
 static void do_loiter_time()
 {
     set_next_WP(&next_nav_command);
@@ -280,7 +281,7 @@ static void do_loiter_time()
 }
 
 /********************************************************************************/
-//  Verify Nav (Must) commands
+//  Verify Nav (Must) commands导航命令的确认
 /********************************************************************************/
 static bool verify_takeoff()
 {
@@ -425,15 +426,15 @@ static bool verify_RTL()
 }
 
 /********************************************************************************/
-//  Condition (May) commands
+//  Condition (May) commands条件命令
 /********************************************************************************/
-
+//等待
 static void do_wait_delay()
 {
     condition_start = millis();
     condition_value  = next_nonnav_command.lat * 1000;          // convert to milliseconds
 }
-
+//改变姿态
 static void do_change_alt()
 {
     condition_rate          = labs((int)next_nonnav_command.lat);
@@ -487,12 +488,12 @@ static bool verify_within_distance()
 /********************************************************************************/
 //  Do (Now) commands
 /********************************************************************************/
-
+//在当前位置盘旋
 static void do_loiter_at_location()
 {
     next_WP = current_loc;
 }
-
+//跳跃
 static void do_jump()
 {
     if (next_nonnav_command.lat == 0) {
@@ -539,7 +540,7 @@ static void do_jump()
     }
     handle_process_nav_cmd();
 }
-
+//改变速度
 static void do_change_speed()
 {
     switch (next_nonnav_command.p1)
@@ -561,7 +562,7 @@ static void do_change_speed()
         g.throttle_cruise.set(next_nonnav_command.lat);
     }
 }
-
+//设置home点
 static void do_set_home()
 {
     if (next_nonnav_command.p1 == 1 && g_gps->status() == GPS::GPS_OK) {
@@ -574,13 +575,13 @@ static void do_set_home()
         home_is_set = true;
     }
 }
-
+//设置伺服系统
 static void do_set_servo()
 {
     hal.rcout->enable_ch(next_nonnav_command.p1 - 1);
     hal.rcout->write(next_nonnav_command.p1 - 1, next_nonnav_command.alt);
 }
-
+//设置延迟函数
 static void do_set_relay()
 {
 #if CONFIG_RELAY == ENABLED
@@ -593,7 +594,7 @@ static void do_set_relay()
     }
 #endif
 }
-
+//重复伺服
 static void do_repeat_servo(uint8_t channel, uint16_t servo_value,
                             int16_t repeat, uint8_t delay_time)
 {
@@ -613,7 +614,7 @@ static void do_repeat_servo(uint8_t channel, uint16_t servo_value,
     event_state.undo_value  = rc_ch[channel]->radio_trim;
     update_events();
 }
-
+//重复延迟函数
 static void do_repeat_relay()
 {
     event_state.type = EVENT_TYPE_RELAY;
