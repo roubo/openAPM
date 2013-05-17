@@ -10,6 +10,7 @@
   PIDs to change the scaling of the PID with speed. At high speed we
   move the surfaces less, and at low speeds we move them more.
  */
+/*从控制借口的到速度，这个值被用于改变速度的PID控制，*/
 static float get_speed_scaler(void)
 {
     float aspeed, speed_scaler;
@@ -35,6 +36,7 @@ static float get_speed_scaler(void)
 
 /*
   return true if the current settings and mode should allow for stick mixing
+   若当前设置和模式允许stick mixing(混合模式：手动模式与其他模式的混合)时返回真
  */
 static bool stick_mixing_enabled(void)
 {
@@ -58,6 +60,9 @@ static bool stick_mixing_enabled(void)
   this is the main roll stabilization function. It takes the
   previously set nav_roll calculates roll servo_out to try to
   stabilize the plane at the given roll
+
+   这是滚转稳定函数的主函数，它利用之前的设置的nav_roll和计算出
+   滚转角的伺服输出，以在给定滚转角的基础上稳定飞机
  */
 static void stabilize_roll(float speed_scaler)
 {
@@ -89,6 +94,8 @@ static void stabilize_roll(float speed_scaler)
   this is the main pitch stabilization function. It takes the
   previously set nav_pitch and calculates servo_out values to try to
   stabilize the plane at the given attitude.
+  这是俯仰稳定模式函数的主函数，它利用之前设定的nav_pitch和计算出
+  的伺服输出在给定姿态的基础上来稳定飞机
  */
 static void stabilize_pitch(float speed_scaler)
 {
@@ -109,6 +116,7 @@ static void stabilize_pitch(float speed_scaler)
 
 /*
   this gives the user control of the aircraft in stabilization modes
+        稳定模式下的控制
  */
 static void stabilize_stick_mixing()
 {
@@ -146,6 +154,7 @@ static void stabilize_stick_mixing()
 
 /*
   stabilize the yaw axis
+     稳定偏行轴
  */
 static void stabilize_yaw(float speed_scaler)
 {
@@ -170,6 +179,7 @@ static void stabilize_yaw(float speed_scaler)
 
 /*
   a special stabilization function for training mode
+   训练模式下的一个特殊的自稳函数
  */
 static void stabilize_training(float speed_scaler)
 {
@@ -203,6 +213,7 @@ static void stabilize_training(float speed_scaler)
 
 /*
   main stabilization function for all 3 axes
+  三个轴方向的主稳定函数
  */
 static void stabilize()
 {
@@ -218,7 +229,7 @@ static void stabilize()
     }
 }
 
-
+/*飞机失事检测*/
 static void crash_checker()
 {
     if(ahrs.pitch_sensor < -4500) {
@@ -228,7 +239,7 @@ static void crash_checker()
         crash_timer--;
 }
 
-
+/* 油门的计算*/
 static void calc_throttle()
 {
     if (!alt_control_airspeed()) {
@@ -265,10 +276,12 @@ static void calc_throttle()
 
 /*****************************************
 * Calculate desired roll/pitch/yaw angles (in medium freq loop)
+  计算出设定的滚转/俯仰/偏航角（在中速循环中 medium_loop（））。
 *****************************************/
 
 //  Yaw is separated into a function for heading hold on rolling take-off
 // ----------------------------------------------------------------------
+//导航偏航角的计算
 static void calc_nav_yaw(float speed_scaler, float ch4_inf)
 {
     if (hold_course != -1) {
@@ -293,7 +306,7 @@ static void calc_nav_yaw(float speed_scaler, float ch4_inf)
 #endif
 }
 
-
+//导航俯仰角的计算
 static void calc_nav_pitch()
 {
     // Calculate the Pitch of the plane
@@ -306,7 +319,7 @@ static void calc_nav_pitch()
     nav_pitch_cd = constrain_int32(nav_pitch_cd, g.pitch_limit_min_cd.get(), g.pitch_limit_max_cd.get());
 }
 
-
+//导航滚转角的计算
 static void calc_nav_roll()
 {
 #define NAV_ROLL_BY_RATE 0
@@ -343,7 +356,7 @@ static void calc_nav_roll()
 
 
 /*****************************************
-* Roll servo slew limit
+* Roll servo slew limit 滚转伺服的回转限制
 *****************************************/
 /*
  *  float roll_slew_limit(float servo)
@@ -355,7 +368,7 @@ static void calc_nav_roll()
  *  }*/
 
 /*****************************************
-* Throttle slew limit
+* Throttle slew limit  油门回转限制
 *****************************************/
 static void throttle_slew_limit(int16_t last_throttle)
 {
@@ -383,6 +396,7 @@ static void throttle_slew_limit(int16_t last_throttle)
    *       OR
    *       5 - Home location is not set
 */
+/*  降低油门量*/
 static bool suppress_throttle(void)
 {
     if (!throttle_suppressed) {
@@ -421,6 +435,7 @@ static bool suppress_throttle(void)
 
 /*****************************************
 * Set the flight control servos based on the current calculated values
+基于当前计算值设置飞行控制伺服
 *****************************************/
 static void set_servos(void)
 {
@@ -599,7 +614,7 @@ static void set_servos(void)
 }
 
 static bool demoing_servos;
-
+//伺服系统的demo
 static void demo_servos(uint8_t i) {
 
     while(i > 0) {
@@ -619,6 +634,7 @@ static void demo_servos(uint8_t i) {
 }
 
 // return true if we should use airspeed for altitude/throttle control
+//如果我们使用空速用于姿态/油门的控制则返回TRUE
 static bool alt_control_airspeed(void)
 {
     return airspeed.use() && g.alt_control_algorithm == ALT_CONTROL_DEFAULT;

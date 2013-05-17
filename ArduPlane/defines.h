@@ -5,7 +5,7 @@
 
 // Internal defines, don't edit and expect things to work
 // -------------------------------------------------------
-
+//内部定义，不要改变
 #define TRUE 1
 #define FALSE 0
 #define ToRad(x) radians(x)	// *pi/180
@@ -18,6 +18,7 @@
 
 // failsafe
 // ----------------------
+//失效保护
 #define FAILSAFE_NONE   0
 #define FAILSAFE_SHORT  1
 #define FAILSAFE_LONG   2
@@ -28,6 +29,7 @@
 
 // active altitude sensor
 // ----------------------
+//高度传感器
 #define SONAR 0
 #define BARO 1
 
@@ -38,6 +40,7 @@
 #define T7 10000000
 
 // GPS type codes - use the names, not the numbers
+//GPS类型编码--使用名字不是序列号
 #define GPS_PROTOCOL_NONE       -1
 #define GPS_PROTOCOL_NMEA       0
 #define GPS_PROTOCOL_SIRF       1
@@ -95,7 +98,7 @@ enum FlightMode {
 #define RELAY_TOGGLE 5
 #define STOP_REPEAT 10
 
-//  GCS Message ID's
+//  GCS Message ID's地面站消息的ID号
 /// NOTE: to ensure we never block on sending MAVLink messages
 /// please keep each MSG_ to a single MAVLink message. If need be
 /// create new MSG_ IDs for additional messages on the same
@@ -134,7 +137,7 @@ enum gcs_severity {
     SEVERITY_CRITICAL
 };
 
-//  Logging parameters
+//  Logging parameters 日志参数
 #define LOG_INDEX_MSG                   0xF0
 #define LOG_ATTITUDE_MSG                0x01
 #define LOG_GPS_MSG                             0x02
@@ -163,23 +166,27 @@ enum gcs_severity {
 
 // Waypoint Modes
 // ----------------
+//航点模式
 #define ABS_WP 0
 #define REL_WP 1
 
 // Command Queues
 // ---------------
+//命令队列
 #define COMMAND_MUST 0
 #define COMMAND_MAY 1
 #define COMMAND_NOW 2
 
 // Events
 // ------
+//事件
 #define EVENT_WILL_REACH_WAYPOINT 1
 #define EVENT_SET_NEW_COMMAND_INDEX 2
 #define EVENT_LOADED_WAYPOINT 3
 #define EVENT_LOOP 4
 
 // Climb rate calculations
+//爬坡速度计算
 #define ALTITUDE_HISTORY_LENGTH 8       //Number of (time,altitude) points to
                                         // regress a climb rate from
 
@@ -196,6 +203,7 @@ enum gcs_severity {
 
 
 // EEPROM addresses
+//EEPROM地址，航点信息位于前1280个字节
 #define EEPROM_MAX_ADDR         4096
 // parameters get the first 1280 bytes of EEPROM, remainder is for waypoints
 #define WP_START_BYTE 0x500 // where in memory home WP is stored + all other
@@ -203,6 +211,7 @@ enum gcs_severity {
 #define WP_SIZE 15
 
 // fence points are stored at the end of the EEPROM
+//栅栏航点存储到EEPROM的最后
 #define MAX_FENCEPOINTS 20
 #define FENCE_WP_SIZE sizeof(Vector2l)
 #define FENCE_START_BYTE (EEPROM_MAX_ADDR-(MAX_FENCEPOINTS*FENCE_WP_SIZE))
@@ -229,6 +238,7 @@ enum gcs_severity {
 #define AP_BARO_PX4      3
 
 // altitude control algorithms
+//高度控制算法
 enum {
     ALT_CONTROL_DEFAULT=0,
     ALT_CONTROL_NON_AIRSPEED=1
