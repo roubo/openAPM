@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-
+//读取控制转换
 static void read_control_switch()
 {
     static bool switch_debouncer;
@@ -61,7 +61,7 @@ static uint8_t readSwitch(void){
     if (pulsewidth >= 1750) return 5;                                                           // Hardware Manual
     return 0;
 }
-
+//复位控制转换
 static void reset_control_switch()
 {
     oldSwitchPosition = 0;

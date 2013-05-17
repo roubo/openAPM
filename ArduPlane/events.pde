@@ -1,6 +1,6 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-
+//控制信号较短时间的丢失引起的失效保护的处理
 static void failsafe_short_on_event(int16_t fstype)
 {
     // This is how to handle a short loss of control signal failsafe.
@@ -32,7 +32,7 @@ static void failsafe_short_on_event(int16_t fstype)
     }
     gcs_send_text_fmt(PSTR("flight mode = %u"), (unsigned)control_mode);
 }
-
+//控制信号长时间的丢失引起的失效保护的处理
 static void failsafe_long_on_event(int16_t fstype)
 {
     // This is how to handle a long loss of control signal failsafe.
@@ -81,6 +81,7 @@ static void failsafe_short_off_event()
 }
 
 #if BATTERY_EVENT == ENABLED
+//低电压事件处理
 void low_battery_event(void)
 {
     gcs_send_text_P(SEVERITY_HIGH,PSTR("Low Battery!"));
@@ -95,6 +96,7 @@ void low_battery_event(void)
 /*
   update state for MAV_CMD_DO_REPEAT_SERVO and MAV_CMD_DO_REPEAT_RELAY
 */
+//时间的更新
 static void update_events(void)
 {
     if (event_state.repeat == 0 || (millis() - event_state.start_time_ms) < event_state.delay_ms) {
