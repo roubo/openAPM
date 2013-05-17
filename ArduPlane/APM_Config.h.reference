@@ -1,7 +1,12 @@
 //
 // Example and reference ArduPilot Mega configuration file
 // =======================================================
-//
+/*从这个文件中我们可以很清楚的看到整个系统分为了哪些模块：
+  GPS协议，空速计模块，磁力计模块，HIL硬件在环仿真，GCS协议
+  串口速率，电压监视器，遥控控制，飞行和导航控制，DateFlash日志控制。 
+*/
+
+
 // This file contains documentation and examples for configuration options
 // supported by the ArduPilot Mega software.
 //
@@ -115,7 +120,7 @@
 // HIL_PROTOCOL_MAVLINK   Configure for HIL over MAVLink.
 //
 // HIL_MODE_DISABLED      Configure for standard flight.
-// HIL_MODE_ATTITUDE      Simulator provides attitude and position information.
+// HIL_MODE_ATTITUDE      Simulator provides attitude and position in：formation.
 // HIL_MODE_SENSORS       Simulator provides raw sensor values.
 //
 // Note that currently HIL_PROTOCOL_XPLANE requires HIL_MODE_ATTITUDE.

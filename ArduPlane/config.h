@@ -78,7 +78,7 @@
  # define CAMERA DISABLED
  #endif
 #endif
-
+//使能UART2用于遥测
 // use this to enable telemetry on UART2. This is used
 // when you have setup the solder bridge on an APM2 to enable UART2
 #ifndef TELEMETRY_UART2
@@ -151,7 +151,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // ADC Enable - used to eliminate for systems which don't have ADC.
-//
+//ADC使能，
 #ifndef CONFIG_ADC
  # if CONFIG_INS_TYPE == CONFIG_INS_OILPAN
   #   define CONFIG_ADC ENABLED
@@ -162,7 +162,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Barometer
-//
+//气压计
 
 #ifndef CONFIG_BARO
  # define CONFIG_BARO AP_BARO_BMP085
@@ -186,7 +186,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // HIL_MODE                                 OPTIONAL
-
+//硬件在环模式
 #ifndef HIL_MODE
  #define HIL_MODE        HIL_MODE_DISABLED
 #endif
@@ -204,7 +204,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // GPS_PROTOCOL
-//
+//GPS协议
 // Note that this test must follow the HIL_PROTOCOL block as the HIL
 // setup may override the GPS configuration.
 //
@@ -218,7 +218,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Serial port speeds.
-//
+//串口速度
 #ifndef SERIAL0_BAUD
  # define SERIAL0_BAUD                   115200
 #endif
@@ -229,7 +229,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Battery monitoring
-//
+//电压监测器
 #ifndef BATTERY_EVENT
  # define BATTERY_EVENT                  DISABLED
 #endif
@@ -250,13 +250,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // INPUT_VOLTAGE
-//
+//输入电压
 #ifndef INPUT_VOLTAGE
  # define INPUT_VOLTAGE                  4.68   //  4.68 is the average value for a sample set.  This is the value at the processor with 5.02 applied at the servo rail
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
-//  MAGNETOMETER
+//  MAGNETOMETER  磁力计
 #ifndef MAGNETOMETER
  # define MAGNETOMETER                   DISABLED
 #endif
@@ -268,14 +268,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-// RADIO CONFIGURATION
+// RADIO CONFIGURATION遥控设置
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
 // Radio channel limits
-//
+//遥控通道限制
 // Note that these are not called out in APM_Config.h.reference.
 //
 #ifndef CH5_MIN
@@ -319,7 +319,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // FLIGHT_MODE
 // FLIGHT_MODE_CHANNEL
-//
+//飞行模式和飞行模式通道
 #ifndef FLIGHT_MODE_CHANNEL
  # define FLIGHT_MODE_CHANNEL    8
 #endif
@@ -355,7 +355,7 @@
 // SHORT_FAILSAFE_ACTION
 // LONG_FAILSAFE_ACTION
 // GCS_HEARTBEAT_FAILSAFE
-//
+//油门失控保护，短失控保护，长失控保护，GCS心跳失效保护
 #ifndef THROTTLE_FAILSAFE
  # define THROTTLE_FAILSAFE              ENABLED
 #endif
@@ -375,7 +375,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // AUTO_TRIM
-//
+//自动修正
 #ifndef AUTO_TRIM
  # define AUTO_TRIM                              DISABLED
 #endif
@@ -405,21 +405,21 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // GROUND_START_DELAY
-//
+//地面开始延迟
 #ifndef GROUND_START_DELAY
  # define GROUND_START_DELAY             0
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 // ENABLE_AIR_START
-//
+//使能飞行开始
 #ifndef ENABLE_AIR_START
  # define ENABLE_AIR_START               DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 // ENABLE ELEVON_MIXING
-//
+//使能混合模式
 #ifndef ELEVON_MIXING
  # define ELEVON_MIXING          DISABLED
 #endif
@@ -435,7 +435,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // CAMERA TRIGGER AND CONTROL
-//
+//摄像头触发和控制，使用寄存器的1182个字节
 // uses 1182 bytes of memory
 #ifndef CAMERA
  # define CAMERA         ENABLED
@@ -457,13 +457,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-// FLIGHT AND NAVIGATION CONTROL
+// FLIGHT AND NAVIGATION CONTROL飞行和导航控制
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
 // Altitude measurement and control.
-//
+//高度测量和控制
 #ifndef ALT_EST_GAIN
  # define ALT_EST_GAIN                   0.01
 #endif
@@ -474,7 +474,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // AIRSPEED_CRUISE
-//
+//巡航时的空速
 #ifndef AIRSPEED_CRUISE
  # define AIRSPEED_CRUISE                12 // 12 m/s
 #endif
@@ -483,7 +483,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // MIN_GNDSPEED
-//
+//最小的地速
 #ifndef MIN_GNDSPEED
  # define MIN_GNDSPEED                   0 // m/s (0 disables)
 #endif
@@ -492,7 +492,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // FLY_BY_WIRE_B airspeed control
-//
+//FBW模式下的空速控制
 #ifndef AIRSPEED_FBW_MIN
  # define AIRSPEED_FBW_MIN               6
 #endif
@@ -526,7 +526,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Servo Mapping
-//
+//伺服映射
 #ifndef THROTTLE_MIN
  # define THROTTLE_MIN                   0 // percent
 #endif
@@ -539,7 +539,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Autopilot control limits
-//
+//自驾仪控制限制如俯仰角最大最小值
 #ifndef HEAD_MAX
  # define HEAD_MAX                               45
 #endif
@@ -555,7 +555,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Attitude control gains
-//
+//姿态控制增加量
 #ifndef SERVO_ROLL_P
  # define SERVO_ROLL_P         0.4
 #endif
@@ -607,7 +607,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Navigation control gains
-//
+//导航控制增加量
 #ifndef NAV_ROLL_P
  # define NAV_ROLL_P           0.7
 #endif
@@ -651,7 +651,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Energy/Altitude control gains
-//
+//能源/高度 控制增加量
 #ifndef THROTTLE_TE_P
  # define THROTTLE_TE_P        0.50
 #endif
@@ -679,7 +679,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Crosstrack compensation
-//
+//偏行补偿
 #ifndef XTRACK_GAIN
  # define XTRACK_GAIN          1 // deg/m
 #endif
@@ -697,7 +697,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Dataflash logging control
-//
+//Dateflash 日志控制
 
 #ifndef LOGGING_ENABLED
  # define LOGGING_ENABLED                ENABLED
@@ -736,6 +736,7 @@
 #endif
 
 // calculate the default log_bitmask
+//计算默认的日志——位掩码
 #define LOGBIT(_s)      (LOG_ ## _s ? MASK_LOG_ ## _s : 0)
 
 #define DEFAULT_LOG_BITMASK \
@@ -753,7 +754,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 // Navigation defaults
-//
+//导航默认值
 #ifndef WP_RADIUS_DEFAULT
  # define WP_RADIUS_DEFAULT              30
 #endif

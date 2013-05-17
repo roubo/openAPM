@@ -2,7 +2,7 @@
 /*
  *  logic for dealing with the current command in the mission and home location
  */
-
+//初始化命令
 static void init_commands()
 {
     g.command_index.set_and_save(0);
@@ -11,7 +11,7 @@ static void init_commands()
     next_nav_command.id     = CMD_BLANK;
     nav_command_index = 0;
 }
-
+//自动刷新
 static void update_auto()
 {
     if (g.command_index >= g.command_total) {
@@ -33,6 +33,7 @@ static void update_auto()
 }
 
 // this is only used by an air-start
+//加载自动起飞命令（仅用于自动起飞）
 static void reload_commands_airstart()
 {
     init_commands();
@@ -42,6 +43,7 @@ static void reload_commands_airstart()
 /*
   fetch a mission item from EEPROM
 */
+//从EEPROM过的任务命令
 static struct Location get_cmd_with_index_raw(int16_t i)
 {
     struct Location temp;
@@ -127,14 +129,14 @@ static void set_cmd_with_index(struct Location temp, int16_t i)
     mem += 4;
     hal.storage->write_dword(mem, temp.lng);
 }
-
+//命令索引递减
 static void decrement_cmd_index()
 {
     if (g.command_index > 0) {
         g.command_index.set_and_save(g.command_index - 1);
     }
 }
-
+//读取高度保持的命令
 static int32_t read_alt_to_hold()
 {
     if (g.RTL_altitude_cm < 0) {
@@ -148,6 +150,7 @@ static int32_t read_alt_to_hold()
  *  This function stores waypoint commands
  *  It looks to see what the next command type is and finds the last command.
  */
+//航点命令---下一个航点
 static void set_next_WP(struct Location *wp)
 {
     // copy the current WP into the OldWP slot
@@ -209,7 +212,7 @@ static void set_next_WP(struct Location *wp)
     // ----------------------------
     reset_crosstrack();
 }
-
+//设置引导航点
 static void set_guided_WP(void)
 {
     // copy the current location into the OldWP slot
@@ -241,6 +244,7 @@ static void set_guided_WP(void)
 
 // run this at setup on the ground
 // -------------------------------
+//在地面开始的时候运行此程序
 void init_home()
 {
     gcs_send_text_P(SEVERITY_LOW, PSTR("init home"));

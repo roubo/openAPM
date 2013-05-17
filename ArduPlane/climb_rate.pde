@@ -14,11 +14,12 @@ unsigned long xoffset;
 unsigned char n;
 
 // Intermediate variables for regression calculation
+//回归计算的中间变量
 long xi;
 long yi;
 long xiyi;
 unsigned long xi2;
-
+//增加姿态数据
 void add_altitude_data(unsigned long xl, long y)
 {
     //Reset the regression if our X variable overflowed

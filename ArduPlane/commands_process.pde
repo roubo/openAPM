@@ -2,6 +2,7 @@
 
 // For changing active command mid-mission
 //----------------------------------------
+//在任务中改变活动的命令
 void change_command(uint8_t cmd_index)
 {
     struct Location temp;
@@ -31,6 +32,7 @@ void change_command(uint8_t cmd_index)
 
 // called by 10 Hz loop
 // --------------------
+//命令的更新，循环频率：10hz
 static void update_commands(void)
 {
     if(control_mode == AUTO) {
@@ -39,7 +41,7 @@ static void update_commands(void)
         }
     }                                                                           // Other (eg GCS_Auto) modes may be implemented here
 }
-
+//命令的确认
 static void verify_commands(void)
 {
     if(verify_nav_command()) {
@@ -51,7 +53,7 @@ static void verify_commands(void)
     }
 }
 
-
+//处理下一条命令
 static void process_next_command()
 {
     // This function makes sure that we always have a current navigation command
@@ -127,7 +129,7 @@ static void process_next_command()
         }
     }
 }
-
+//处理非导航命令
 static void process_non_nav_command()
 {
     //gcs_send_text_P(SEVERITY_LOW,PSTR("new non-nav command loaded"));
