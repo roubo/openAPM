@@ -88,11 +88,11 @@ static void init_ardupilot()
     //
     // The console port buffers are defined to be sufficiently large to support
     // the MAVLink protocol efficiently
-    //
+    //初始化串口A，支持MAVLINK协议
     hal.uartA->begin(SERIAL0_BAUD, 128, 256);
 
     // GPS serial port.
-    //
+    //初始化GPS所用的串口B，GPS是通过串口与飞控相连，波特率38400，我们用的GPS为UBLOX
 #if GPS_PROTOCOL != GPS_PROTOCOL_IMU
     // standard gps running. Note that we need a 256 byte buffer for some
     // GPS types (eg. UBLOX)
@@ -105,10 +105,10 @@ static void init_ardupilot()
 
     //
     // Report firmware version code expect on console (check of actual EEPROM format version is done in load_parameters function)
-    //
+    //报告固件的版本，这个信息是存储在EEPROM里的
     report_version();
 
-    // setup IO pins
+    // setup IO pins 设置一些IO口，用于驱动LED
     pinMode(A_LED_PIN, OUTPUT);                                 // GPS status LED
     digitalWrite(A_LED_PIN, LED_OFF);
 
@@ -145,9 +145,13 @@ static void init_ardupilot()
 
 
     // load parameters from EEPROM
+	//从EEPROM中载入参数值
     load_parameters();
 
-    // init the GCS
+    // init the GCS 
+    //初始化地面站，也就是数传模块，数传模块与飞控通信是通过uartA，
+   //这个口也用于USB
+    //
     gcs0.init(hal.uartA);
 
     // Register the mavlink service callback. This will run
@@ -172,7 +176,7 @@ static void init_ardupilot()
     mavlink_system.type = 2; //MAV_QUADROTOR;
 
 #if LOGGING_ENABLED == ENABLED
-    DataFlash.Init();
+    DataFlash.Init();//EEPROM初始化
     if (!DataFlash.CardInserted()) {
         gcs_send_text_P(SEVERITY_LOW, PSTR("No dataflash inserted"));
         g.log_bitmask.set(0);
@@ -189,7 +193,7 @@ static void init_ardupilot()
     motors.servo_manual = false;
     motors.init_swash();              // heli initialisation
 #endif
-
+ //初始化遥控的输入输出通道
     init_rc_in();               // sets up rc channels from radio
     init_rc_out();              // sets up the timer libs
     /*
@@ -204,26 +208,26 @@ static void init_ardupilot()
     adc.Init();           // APM ADC library initialization
  #endif // CONFIG_ADC
 
-    barometer.init();
+    barometer.init();//气压计的初始化，气压计与mega2560通信是通过I2C，气压计输出的为压力值
 
 #endif // HIL_MODE
 
     // Do GPS init
     g_gps = &g_gps_driver;
-    // GPS Initialization
+    // GPS Initialization GPS初始化，占用串口UARTB
     g_gps->init(hal.uartB, GPS::GPS_ENGINE_AIRBORNE_1G);
 
     if(g.compass_enabled)
-        init_compass();
+        init_compass();//磁力计初始化，I2C接口
 
     // init the optical flow sensor
     if(g.optflow_enabled) {
-        init_optflow();
+        init_optflow();//初始化光流传感器，SPI通信
     }
 
 #if INERTIAL_NAV_XY == ENABLED || INERTIAL_NAV_Z == ENABLED
     // initialise inertial nav
-    inertial_nav.init();
+    inertial_nav.init();//初始化惯性导航
 #endif
 
 #ifdef USERHOOK_INIT
@@ -240,7 +244,7 @@ static void init_ardupilot()
     if (check_startup_for_CLI()) {
         digitalWrite(A_LED_PIN, LED_ON);                        // turn on setup-mode LED
         cliSerial->printf_P(PSTR("\nCLI:\n\n"));
-        run_cli(cliSerial);
+        run_cli(cliSerial);//命令行输入
     }
 #else
     const prog_char_t *msg = PSTR("\nPress ENTER 3 times to start interactive setup\n");
@@ -258,20 +262,21 @@ static void init_ardupilot()
 
     // initialise sonar
 #if CONFIG_SONAR == ENABLED
-    init_sonar();
+    init_sonar();//初始化声纳，  声纳传感器与气压计是结合使用的，用来确定高度
 #endif
 
 #if FRAME_CONIG == HELI_FRAME
 // initialise controller filters
-init_rate_controllers();
+init_rate_controllers();//初始化速度控制滤波单元
 #endif // HELI_FRAME
 
     // initialize commands
     // -------------------
-    init_commands();
+    init_commands();//初始化命令部分
 
     // set the correct flight mode
     // ---------------------------
+   //设置正确的飞行模式
     reset_control_switch();
 
 
@@ -280,7 +285,7 @@ init_rate_controllers();
 #if LOGGING_ENABLED == ENABLED
     Log_Write_Startup();
 #endif
-
+    //初始化限制条件，比如geofence
     init_ap_limits();
 
     cliSerial->print_P(PSTR("\nReady to FLY "));
