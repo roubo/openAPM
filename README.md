@@ -6,6 +6,8 @@ Test code for open souce UVA project APM ,By San412
 测试APM源码
 长春理工大学 光电工程学院 创新实验室 412
 
+**暂时停止更新，感谢张雪同学的贡献，愿她一路顺风。 2013/06/27
+
 original APM introduce
 ======================
 
@@ -174,3 +176,7 @@ namespace AP_HAL {
 	IMU
 	------
 针对悬翼机
+=======
+
+
+等待整理。。。

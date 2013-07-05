@@ -72,39 +72,39 @@
 #include <AP_HAL_Empty.h>
 
 // Application dependencies
-#include <GCS_MAVLink.h>        // MAVLink GCS definitions
-#include <AP_GPS.h>             // ArduPilot GPS library
-#include <DataFlash.h>          // ArduPilot Mega Flash Memory Library
-#include <AP_ADC.h>             // ArduPilot Mega Analog to Digital Converter Library
-#include <AP_ADC_AnalogSource.h>
-#include <AP_Baro.h>
-#include <AP_Compass.h>         // ArduPilot Mega Magnetometer Library
-#include <AP_Math.h>            // ArduPilot Mega Vector/Matrix math Library
-#include <AP_Curve.h>           // Curve used to linearlise throttle pwm to thrust
-#include <AP_InertialSensor.h>  // ArduPilot Mega Inertial Sensor (accel & gyro) Library
-#include <AP_AHRS.h>
-#include <APM_PI.h>             // PI library
-#include <AC_PID.h>             // PID library
-#include <RC_Channel.h>         // RC Channel Library
-#include <AP_Motors.h>          // AP Motors library
-#include <AP_RangeFinder.h>     // Range finder library
-#include <AP_OpticalFlow.h>     // Optical Flow library
-#include <Filter.h>             // Filter library
-#include <AP_Buffer.h>          // APM FIFO Buffer
-#include <AP_LeadFilter.h>      // GPS Lead filter
-#include <AP_Relay.h>           // APM relay
-#include <AP_Camera.h>          // Photo or video camera
-#include <AP_Mount.h>           // Camera/Antenna mount
-#include <AP_Airspeed.h>        // needed for AHRS build
-#include <AP_InertialNav.h>     // ArduPilot Mega inertial navigation library
-#include <AP_Declination.h>     // ArduPilot Mega Declination Helper Library
-#include <AP_Limits.h>
-#include <memcheck.h>
-#include <SITL.h>
+#include <GCS_MAVLink.h>        // MAVLink GCS definitions  MAVLINK地面站定义
+#include <AP_GPS.h>             // ArduPilot GPS library 自驾仪GPS库
+#include <DataFlash.h>          // ArduPilot Mega Flash Memory Library FLASH库
+#include <AP_ADC.h>             // ArduPilot Mega Analog to Digital Converter Library模数转换的库
+#include <AP_ADC_AnalogSource.h>//模拟源
+#include <AP_Baro.h>            //气压计
+#include <AP_Compass.h>         // ArduPilot Mega Magnetometer Library磁力计
+#include <AP_Math.h>            // ArduPilot Mega Vector/Matrix math Library向量/矩阵库
+#include <AP_Curve.h>           // Curve used to linearlise throttle pwm to thrust油门曲线
+#include <AP_InertialSensor.h>  // ArduPilot Mega Inertial Sensor (accel & gyro) Library惯性测量传感器
+#include <AP_AHRS.h>            //DCM算法库
+#include <APM_PI.h>             // PI library PI控制
+#include <AC_PID.h>             // PID library  PID控制
+#include <RC_Channel.h>         // RC Channel Library RC通道
+#include <AP_Motors.h>          // AP Motors library 电机控制
+#include <AP_RangeFinder.h>     // Range finder library 测距仪模块库 包括超声波
+#include <AP_OpticalFlow.h>     // Optical Flow library 光流传感器
+#include <Filter.h>             // Filter library 滤波算法
+#include <AP_Buffer.h>          // APM FIFO Buffer FIFO缓冲库
+#include <AP_LeadFilter.h>      // GPS Lead filter GPS滤波器
+#include <AP_Relay.h>           // APM relay 延迟函数
+#include <AP_Camera.h>          // Photo or video camera摄像头采集
+#include <AP_Mount.h>           // Camera/Antenna mount 摄像头/天线挂载
+#include <AP_Airspeed.h>        // needed for AHRS build空速模块
+#include <AP_InertialNav.h>     // ArduPilot Mega inertial navigation library惯性导航
+#include <AP_Declination.h>     // ArduPilot Mega Declination Helper Library偏差库
+#include <AP_Limits.h>          //在位置，高度和其他参数上增设限制，比如栅栏围墙
+#include <memcheck.h>           //内存检查
+#include <SITL.h>               //软件在环库
 
 // AP_HAL to Arduino compatibility layer
 #include "compat.h"
-// Configuration
+// Configuration配置文件
 #include "defines.h"
 #include "config.h"
 #include "config_channels.h"
@@ -135,7 +135,7 @@ const AP_HAL::HAL& hal = AP_HAL_BOARD_DRIVER;
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Global parameters are all contained within the 'g' class.
-//
+//设置全局变量g
 static Parameters g;
 
 
@@ -145,7 +145,7 @@ static Parameters g;
 static void update_events(void);
 
 ////////////////////////////////////////////////////////////////////////////////
-// Dataflash
+// Dataflash日志
 ////////////////////////////////////////////////////////////////////////////////
 #if CONFIG_HAL_BOARD == HAL_BOARD_APM2
 DataFlash_APM2 DataFlash;
@@ -159,7 +159,7 @@ DataFlash_Empty DataFlash;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// the rate we run the main loop at
+// the rate we run the main loop at  惯性传感器的更新速率为200hz
 ////////////////////////////////////////////////////////////////////////////////
 static const AP_InertialSensor::Sample_rate ins_sample_rate = AP_InertialSensor::RATE_200HZ;
 
@@ -177,9 +177,10 @@ static const AP_InertialSensor::Sample_rate ins_sample_rate = AP_InertialSensor:
 //
 
 // All GPS access should be through this pointer.
+//GPS所有的信息都是从*g_gps这个指针传进来的
 static GPS         *g_gps;
 
-// flight modes convenience array
+// flight modes convenience array//飞行模式
 static AP_Int8 *flight_modes = &g.flight_mode1;
 
 #if HIL_MODE == HIL_MODE_DISABLED
@@ -187,7 +188,7 @@ static AP_Int8 *flight_modes = &g.flight_mode1;
  #if CONFIG_ADC == ENABLED
 AP_ADC_ADS7844 adc;
  #endif
-
+//设置不同的惯性测量单元
  #if CONFIG_IMU_TYPE == CONFIG_IMU_MPU6000
 AP_InertialSensor_MPU6000 ins;
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_OILPAN
@@ -200,6 +201,7 @@ AP_InertialSensor_PX4 ins;
 
  #if CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
  // When building for SITL we use the HIL barometer and compass drivers
+//当使用软件在环仿真时，我们使用硬件在环的气压计和磁力计驱动
 AP_Baro_BMP085_HIL barometer;
 AP_Compass_HIL compass;
 SITL sitl;
@@ -232,7 +234,7 @@ AP_OpticalFlow_ADNS3080 optflow;
 AP_OpticalFlow optflow;
  #endif
 
-// real GPS selection
+// real GPS selection真正GPS的选择
  #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
 AP_GPS_Auto     g_gps_driver(&g_gps);
 
@@ -270,7 +272,7 @@ AP_AHRS_MPU6000  ahrs2(&ins, g_gps);               // only works with APM2
   #endif
 
 #elif HIL_MODE == HIL_MODE_SENSORS
-// sensor emulators
+// sensor emulators 传感器模拟，在硬件在环仿真中使用
 AP_ADC_HIL              adc;
 AP_Baro_BMP085_HIL      barometer;
 AP_Compass_HIL          compass;
@@ -303,13 +305,13 @@ static int32_t gps_base_alt;
 #endif // HIL MODE
 
 ////////////////////////////////////////////////////////////////////////////////
-// GCS selection
+// GCS selection  地面站的选择
 ////////////////////////////////////////////////////////////////////////////////
 GCS_MAVLINK gcs0;
 GCS_MAVLINK gcs3;
 
 ////////////////////////////////////////////////////////////////////////////////
-// SONAR selection
+// SONAR selection 超声波传感器的设置
 ////////////////////////////////////////////////////////////////////////////////
 //
 
@@ -327,7 +329,7 @@ AP_RangeFinder_MaxsonarXL *sonar;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// Global variables
+// Global variables全局变量
 ////////////////////////////////////////////////////////////////////////////////
 
 /* Radio values
@@ -382,7 +384,7 @@ static struct AP_System{
 } ap_system;
 
 /*
-  what navigation updated are needed
+  what navigation updated are needed需要更新的导航信息
  */
 static struct nav_updates {
     uint8_t need_velpos             : 1;
@@ -394,11 +396,13 @@ static struct nav_updates {
 
 ////////////////////////////////////////////////////////////////////////////////
 // velocity in lon and lat directions calculated from GPS position and accelerometer data
+//根据GPS位置和加速度计计算的经纬度的速率，5-10hz的更新速率
 // updated after GPS read - 5-10hz
 static int16_t lon_speed;       // expressed in cm/s.  positive numbers mean moving east
 static int16_t lat_speed;       // expressed in cm/s.  positive numbers when moving north
 
 // The difference between the desired rate of travel and the actual rate of travel
+//
 // updated after GPS read - 5-10hz
 static int16_t x_rate_error;
 static int16_t y_rate_error;
@@ -406,7 +410,7 @@ static int16_t y_rate_error;
 ////////////////////////////////////////////////////////////////////////////////
 // Radio
 ////////////////////////////////////////////////////////////////////////////////
-// This is the state of the flight control system
+// This is the state of the flight control system飞行控制系统的状态，可设置成各种模式
 // There are multiple states defined such as STABILIZE, ACRO,
 static int8_t control_mode = STABILIZE;
 // Used to maintain the state of the previous control switch position
@@ -451,7 +455,7 @@ MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// PIDs
+// PIDs PID控制，惯性测量单元
 ////////////////////////////////////////////////////////////////////////////////
 // This is a convienience accessor for the IMU roll rates. It's currently the raw IMU rates
 // and not the adjusted omega rates, but the name is stuck
@@ -462,7 +466,7 @@ float tuning_value;
 static uint8_t pid_log_counter;
 
 ////////////////////////////////////////////////////////////////////////////////
-// LED output
+// LED output  LED输出
 ////////////////////////////////////////////////////////////////////////////////
 // This is current status for the LED lights state machine
 // setting this value changes the output of the LEDs
@@ -475,7 +479,7 @@ static uint8_t copter_leds_motor_blink;
 static int8_t copter_leds_nav_blink;
 
 ////////////////////////////////////////////////////////////////////////////////
-// GPS variables
+// GPS variables  GPS变量  用于EEOROM存储
 ////////////////////////////////////////////////////////////////////////////////
 // This is used to scale GPS values for EEPROM storage
 // 10^7 times Decimal GPS means 1 == 1cm
@@ -503,7 +507,7 @@ union float_int {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Location & Navigation
+// Location & Navigation 本地和导航
 ////////////////////////////////////////////////////////////////////////////////
 // This is the angle from the copter to the "next_WP" location in degrees * 100
 static int32_t wp_bearing;
@@ -533,7 +537,7 @@ static int16_t control_pitch;
 static uint8_t rtl_state;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Orientation
+// Orientation 方向  DCM 算法生成的一些值
 ////////////////////////////////////////////////////////////////////////////////
 // Convienience accessors for commonly used trig functions. These values are generated
 // by the DCM through a few simple equations. They are used throughout the code where cos and sin
@@ -547,14 +551,14 @@ static float sin_roll;
 static float sin_pitch;
 
 ////////////////////////////////////////////////////////////////////////////////
-// SIMPLE Mode
+// SIMPLE Mode 简单模式
 ////////////////////////////////////////////////////////////////////////////////
 // Used to track the orientation of the copter for Simple mode. This value is reset at each arming
 // or in SuperSimple mode when the copter leaves a 20m radius from home.
 static int32_t initial_simple_bearing;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Rate contoller targets
+// Rate contoller targets 速度控制目标
 ////////////////////////////////////////////////////////////////////////////////
 static uint8_t rate_targets_frame = EARTH_FRAME;    // indicates whether rate targets provided in earth or body frame
 static int32_t roll_rate_target_ef = 0;
@@ -565,7 +569,7 @@ static int32_t pitch_rate_target_bf = 0;    // body frame pitch rate target
 static int32_t yaw_rate_target_bf = 0;      // body frame yaw rate target
 
 ////////////////////////////////////////////////////////////////////////////////
-// Throttle variables
+// Throttle variables 油门变量
 ////////////////////////////////////////////////////////////////////////////////
 static int16_t throttle_accel_target_ef;    // earth frame throttle acceleration target
 static bool throttle_accel_controller_active;   // true when accel based throttle controller is active, false when higher level throttle controllers are providing throttle output directly
@@ -580,7 +584,7 @@ static int16_t desired_climb_rate;          // pilot desired climb rate - for lo
 int32_t roll_axis;
 int32_t pitch_axis;
 
-// Filters
+// Filters 滤波器
 AP_LeadFilter xLeadFilter;      // Long GPS lag filter
 AP_LeadFilter yLeadFilter;      // Lat  GPS lag filter
 #if FRAME_CONFIG == HELI_FRAME
@@ -593,7 +597,7 @@ LowPassFilterFloat rate_pitch_filter;   // Rate Pitch filter
 AverageFilterInt32_Size5 baro_filter;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Circle Mode / Loiter control
+// Circle Mode / Loiter control 盘旋控制
 ////////////////////////////////////////////////////////////////////////////////
 // used to determin the desired location in Circle mode
 // increments at circle_rate / second
@@ -616,7 +620,7 @@ static struct   Location circle_WP;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// CH7 control
+// CH7 control 通道7控制
 ////////////////////////////////////////////////////////////////////////////////
 // This register tracks the current Mission Command index when writing
 // a mission using CH7 in flight
@@ -624,7 +628,7 @@ static int8_t CH7_wp_index;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Battery Sensors
+// Battery Sensors电压监测器
 ////////////////////////////////////////////////////////////////////////////////
 // Battery Voltage of battery, initialized above threshold for filter
 static float battery_voltage1 = LOW_VOLTAGE * 1.05;
@@ -635,7 +639,7 @@ static float current_total1;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Altitude
+// Altitude 高度信息
 ////////////////////////////////////////////////////////////////////////////////
 // The cm we are off in altitude from next_WP.alt – Positive value means we are below the WP
 static int32_t altitude_error;
@@ -659,7 +663,7 @@ static int16_t saved_toy_throttle;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// flight modes
+// flight modes飞行模式
 ////////////////////////////////////////////////////////////////////////////////
 // Flight modes are combinations of Roll/Pitch, Yaw and Throttle control modes
 // Each Flight mode is a unique combination of these modes
@@ -673,7 +677,7 @@ static uint8_t throttle_mode;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// flight specific
+// flight specific 飞行特定
 ////////////////////////////////////////////////////////////////////////////////
 // An additional throttle added to keep the copter at the same altitude when banking
 static int16_t angle_boost;
@@ -682,7 +686,7 @@ static uint16_t land_detector;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Navigation general
+// Navigation general 导航
 ////////////////////////////////////////////////////////////////////////////////
 // The location of home in relation to the copter, updated every GPS read
 static int32_t home_bearing;
@@ -693,7 +697,7 @@ static int32_t home_distance;
 int32_t wp_distance;
 
 ////////////////////////////////////////////////////////////////////////////////
-// 3D Location vectors
+// 3D Location vectors 3D本地向量
 ////////////////////////////////////////////////////////////////////////////////
 // home location is stored when we have a good GPS lock and arm the copter
 // Can be reset each the copter is re-armed
@@ -713,7 +717,7 @@ static struct   Location guided_WP;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Crosstrack
+// Crosstrack 交叉跟踪
 ////////////////////////////////////////////////////////////////////////////////
 // deg * 100, The original angle to the next_WP when the next_WP was set
 // Also used to check when we pass a WP
@@ -723,7 +727,7 @@ static int16_t crosstrack_error;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Navigation Roll/Pitch functions
+// Navigation Roll/Pitch functions 导航滚转和俯仰函数
 ////////////////////////////////////////////////////////////////////////////////
 // all angles are deg * 100 : target yaw angle
 // The Commanded ROll from the autopilot.
@@ -745,7 +749,7 @@ static int32_t of_pitch;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Navigation Throttle control
+// Navigation Throttle control 导航油门控制
 ////////////////////////////////////////////////////////////////////////////////
 // The Commanded Throttle from the autopilot.
 static int16_t nav_throttle;    // 0-1000 for throttle control
@@ -754,14 +758,14 @@ static int16_t nav_throttle;    // 0-1000 for throttle control
 static uint32_t throttle_integrator;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Climb rate control
+// Climb rate control 上升速率控制
 ////////////////////////////////////////////////////////////////////////////////
 // Time when we intiated command in millis - used for controlling decent rate
 // Used to track the altitude offset for climbrate control
 static int8_t alt_change_flag;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Navigation Yaw control
+// Navigation Yaw control 导航偏航控制
 ////////////////////////////////////////////////////////////////////////////////
 // The Commanded Yaw from the autopilot.
 static int32_t nav_yaw;
@@ -778,7 +782,7 @@ static int16_t yaw_look_at_heading_slew;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Repeat Mission Scripting Command
+// Repeat Mission Scripting Command 重复任务脚本命令
 ////////////////////////////////////////////////////////////////////////////////
 // The type of repeating event - Toggle a servo channel, Toggle the APM1 relay, etc
 static uint8_t event_id;
@@ -794,35 +798,35 @@ static int16_t event_value;
 static int16_t event_undo_value;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Delay Mission Scripting Command
+// Delay Mission Scripting Command 延迟任务脚本命令
 ////////////////////////////////////////////////////////////////////////////////
 static int32_t condition_value;  // used in condition commands (eg delay, change alt, etc.)
 static uint32_t condition_start;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// IMU variables
+// IMU variables 惯性测量单元变量，用于DCM算法
 ////////////////////////////////////////////////////////////////////////////////
 // Integration time for the gyros (DCM algorithm)
 // Updated with the fast loop
 static float G_Dt = 0.02;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Inertial Navigation
+// Inertial Navigation 惯性导航
 ////////////////////////////////////////////////////////////////////////////////
 #if INERTIAL_NAV_XY == ENABLED || INERTIAL_NAV_Z == ENABLED
 AP_InertialNav inertial_nav(&ahrs, &ins, &barometer, &g_gps);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-// Performance monitoring
+// Performance monitoring 监测性能
 ////////////////////////////////////////////////////////////////////////////////
 // Used to manage the rate of performance logging messages
 static int16_t perf_mon_counter;
 // The number of GPS fixes we have had
 static int16_t gps_fix_count;
 
-// System Timers
+// System Timers 系统时钟
 // --------------
 // Time in microseconds of main control loop
 static uint32_t fast_loopTimer;
@@ -900,16 +904,17 @@ AP_Limit_Altitude       altitude_limit(&current_loc);
 void get_throttle_althold(int32_t target_alt, int16_t min_climb_rate, int16_t max_climb_rate);
 
 ////////////////////////////////////////////////////////////////////////////////
-// Top-level logic
+// Top-level logic   顶层逻辑
 ////////////////////////////////////////////////////////////////////////////////
 
-// setup the var_info table
+// setup the var_info table 初始化一个信息表var_info，用来存放从EEPROM读取的信息
 AP_Param param_loader(var_info, WP_START_BYTE);
 
 void setup() {
-    cliSerial = hal.console;
+    cliSerial = hal.console;//初始化对象
 
     // Load the default values of variables listed in var_info[]s
+    //从var_info[]表中载入默认值
     AP_Param::setup_sketch_defaults();
 
 #if CONFIG_SONAR == ENABLED
@@ -925,18 +930,19 @@ void setup() {
     sonar = new AP_RangeFinder_MaxsonarXL(sonar_analog_source,
             &sonar_mode_filter);
 #endif
-
+	//初始化一些模拟源
     rssi_analog_source      = hal.analogin->channel(g.rssi_pin, 0.25);
     batt_volt_analog_source = hal.analogin->channel(g.battery_volt_pin);
     batt_curr_analog_source = hal.analogin->channel(g.battery_curr_pin);
     board_vcc_analog_source = hal.analogin->channel(ANALOG_INPUT_BOARD_VCC);
-
+     //内存检测初始化
     memcheck_init();
-    init_ardupilot();
+    init_ardupilot();//飞机的初始化，包含了除上述模块外其他部分的初始化
 }
 
 /*
   if the compass is enabled then try to accumulate a reading
+   磁力计累积
  */
 static void compass_accumulate(void)
 {
@@ -947,7 +953,7 @@ static void compass_accumulate(void)
 
 // enable this to get console logging of scheduler performance
 #define SCHEDULER_DEBUG 0
-
+//更新性能，写LOG
 static void perf_update(void)
 {
     if (g.log_bitmask & MASK_LOG_PM)
@@ -964,6 +970,7 @@ static void perf_update(void)
 
 /*
   return number of micros until the main loop will want to run again
+  返回时间值直到主循环重新运行
  */
 static int16_t main_loop_time_available(void)
 {
@@ -988,6 +995,8 @@ struct timer_event_table {
   scheduler table - all regular events apart from the fast_loop()
   should be listed here, along with how often they should be called
   (in 10ms units) and the maximum time they are expected to take
+  调度表，除fast_loop()中所有周期性的事件应该列在下面，标明循环频率
+ ，以及所预期的最长的时间
  */
 static const struct timer_event_table PROGMEM timer_events[NUM_TIMER_EVENTS] = {
     { update_GPS,         2,     900 },
@@ -1013,6 +1022,7 @@ static uint16_t event_time_allowed;
 
 /*
   return number of micros until the current event reaches its deadline
+ 返回当前事件到达截止时间所需的时间
  */
 static uint16_t event_time_available(void)
 {
@@ -1025,6 +1035,7 @@ static uint16_t event_time_available(void)
 
 /*
   run as many scheduler events as we can
+ 运行我们所能调度的事件
  */
 static void run_events(uint16_t time_available_usec)
 {
@@ -1049,11 +1060,13 @@ static void run_events(uint16_t time_available_usec)
                 timer_counters[i] = tick_counter;
                 
                 // work out how long the event actually took
+		//计算时间实际运行所需的时间
                 uint32_t time_taken = micros() - event_time_started;
                 
                 if (time_taken > event_time_allowed) {
                     // the event overran!
 #if SCHEDULER_DEBUG
+			//命令行输出
                     cliSerial->printf_P(PSTR("overrun in event %u (%u/%u)\n"), 
                                         (unsigned)i, 
                                         (unsigned)time_taken,
@@ -1066,12 +1079,12 @@ static void run_events(uint16_t time_available_usec)
         }
     }
 }
-
+//真正的主循环在这
 void loop()
 {
     uint32_t timer = micros();
 
-    // We want this to execute fast
+    // We want this to execute fast执行fast_loop
     // ----------------------------
     if (ins.num_samples_available() >= 2) {
 
@@ -1081,16 +1094,18 @@ void loop()
 
         // check loop time
         perf_info_check_loop_time(timer - fast_loopTimer);
-
+	//DCM算法中的参数，用于PI控制环
         G_Dt                            = (float)(timer - fast_loopTimer) / 1000000.f;                  // used by PI Loops
         fast_loopTimer          = timer;
 
         // for mainloop failure monitoring
-        mainLoop_count++;
+        mainLoop_count++;//看门狗监测
 
         // Execute the fast loop
         // ---------------------
-        fast_loop();
+        /*//主要实现了DCM算法，读取惯性导航单元的参数，设置伺服输出，读取惯性导航参数
+	更新光流，读取遥控信息等*/
+	fast_loop();
 
         tick_counter++;
     } else {
@@ -1101,35 +1116,42 @@ void loop()
         } else {
             time_to_next_loop = 10000 - dt;
         }
-        run_events(time_to_next_loop);
+        run_events(time_to_next_loop);//通过调度表去调度其它的函数和循环
     }
 }
 
 
-// Main loop - 100hz
+// Main loop - 100hz  
+//fast_loop()循环频率为100hz
 static void fast_loop()
 {
     // run low level rate controllers that only require IMU data
+    //运行底层速率控制器，只需要惯性测量单元的数据
     run_rate_controllers();
 
     // write out the servo PWM values
     // ------------------------------
+   //设置伺服系统的PWM波输出
     set_servos_4();
 
     // IMU DCM Algorithm
     // --------------------
+    //惯性测量单元DCM算法
     read_AHRS();
 
     // reads all of the necessary trig functions for cameras, throttle, etc.
     // --------------------------------------------------------------------
+    //读取摄像头，油门等所有必要的触发函数
     update_trig();
 
     // Inertial Nav
     // --------------------
+    //惯性导航
     read_inertia();
 
     // optical flow
     // --------------------
+    //光流传感器
 #if OPTFLOW == ENABLED
     if(g.optflow_enabled) {
         update_optical_flow();
@@ -1138,6 +1160,7 @@ static void fast_loop()
 
     // Read radio and 3-position switch on radio
     // -----------------------------------------
+    //读取遥控和3位置开关
     read_radio();
     read_control_switch();
 
@@ -1147,6 +1170,7 @@ static void fast_loop()
     update_roll_pitch_mode();
 
     // update targets to rate controllers
+    //更新速度控制的目标
     update_rate_contoller_targets();
 
     // agmatthews - USERHOOKS
@@ -1155,7 +1179,7 @@ static void fast_loop()
 #endif
 
 }
-
+//medium_loop（）循环频率10hz
 static void medium_loop()
 {
     // This is the start of the medium (10 Hz) loop pieces
@@ -1164,6 +1188,7 @@ static void medium_loop()
 
     // This case deals with the GPS and Compass
     //-----------------------------------------
+    //处理GPS和磁力计
     case 0:
         medium_loopCounter++;
 
@@ -1176,6 +1201,7 @@ static void medium_loop()
 #endif
 
         // auto_trim - stores roll and pitch radio inputs to ahrs
+        //自动修整，储存滚转和俯仰的遥控 输入给姿态
         auto_trim();
 
         // record throttle output
@@ -1185,6 +1211,7 @@ static void medium_loop()
 
     // This case performs some navigation computations
     //------------------------------------------------
+    //导航计算
     case 1:
         medium_loopCounter++;
         read_receiver_rssi();
@@ -1192,9 +1219,10 @@ static void medium_loop()
 
     // command processing
     //-------------------
+   //命令处理 更新toy模式
     case 2:
         medium_loopCounter++;
-
+     
         if(control_mode == TOY_A) {
             update_toy_throttle();
 
@@ -1208,6 +1236,7 @@ static void medium_loop()
 
     // This case deals with sending high rate telemetry
     //-------------------------------------------------
+   //处理发送高速率的遥测信号，更新命令事件
     case 3:
         medium_loopCounter++;
 
@@ -1274,6 +1303,7 @@ static void fifty_hz_loop()
 {
     // Update the throttle ouput
     // -------------------------
+    //更新油门输出
     update_throttle_mode();
 
 #if TOY_EDF == ENABLED
@@ -1287,11 +1317,13 @@ static void fifty_hz_loop()
 
 #if HIL_MODE != HIL_MODE_DISABLED && FRAME_CONFIG != HELI_FRAME
     // HIL for a copter needs very fast update of the servo values
+    //硬件在环仿真四旋翼需要伺服系统非常快速的更新值
     gcs_send_message(MSG_RADIO_OUT);
 #endif
 
 #if MOUNT == ENABLED
     // update camera mount's position
+    //更新摄像头挂载的位置
     camera_mount.update_mount_position();
 #endif
 
@@ -1560,6 +1592,7 @@ bool set_yaw_mode(uint8_t new_yaw_mode)
     }
 
     // if initialisation has been successful update the yaw mode
+   //如果初始化成功则更新偏航模式
     if( yaw_initialised ) {
         yaw_mode = new_yaw_mode;
     }
@@ -1569,7 +1602,7 @@ bool set_yaw_mode(uint8_t new_yaw_mode)
 }
 
 // update_yaw_mode - run high level yaw controllers
-// 100hz update rate
+// 100hz update rate  100hz的更新频率
 void update_yaw_mode(void)
 {
     switch(yaw_mode) {
@@ -1907,7 +1940,7 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
 }
 
 // update_throttle_mode - run high level throttle controllers
-// 50 hz update rate
+// 50 hz update rate 更新油门模式，运行顶层油门控制
 void update_throttle_mode(void)
 {
     int16_t pilot_climb_rate;
@@ -2058,7 +2091,7 @@ void update_throttle_mode(void)
         break;
     }
 }
-
+//更新姿态数据
 static void read_AHRS(void)
 {
     // Perform IMU calculations and get attitude info
@@ -2075,7 +2108,7 @@ static void read_AHRS(void)
     ahrs2.update();
 #endif
 }
-
+//更新触发事件，更新的是一些矩阵和向量的值
 static void update_trig(void){
     Vector2f yawvector;
     Matrix3f temp   = ahrs.get_dcm_matrix();
@@ -2106,12 +2139,12 @@ static void update_trig(void){
     // 270 = cos_yaw: -1.00, sin_yaw:  0.00,
 }
 
-// updated at 10hz
+// updated at 10hz 更新高度信息，更新频率10hz
 static void update_altitude()
 {
     int32_t old_baro_alt    = baro_alt;
     int16_t old_sonar_alt   = sonar_alt;
-
+    //高度信息是有气压计和声纳共同决定的
 #if HIL_MODE == HIL_MODE_ATTITUDE
     // we are in the SIM, fake out the baro and Sonar
     int16_t fake_relative_alt = g_gps->altitude - gps_base_alt;
@@ -2150,6 +2183,8 @@ static void update_altitude()
     }else{
         // Blend barometer and sonar data together
         float scale;
+	//当声纳使能时，高度低于800时，采用气压计和声纳共同计算出高度信息，
+	//当高度高于800时，只采用气压计测量出的高度信息
         if(baro_alt < 800) {
             scale = (float)(sonar_alt - 400) / 200.0;
             scale = constrain(scale, 0.0, 1.0);
