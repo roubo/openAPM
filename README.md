@@ -8,6 +8,8 @@ Test code for open souce UVA project APM ,By San412
 
 **暂时停止更新，感谢张雪同学的贡献，愿她一路顺风。 2013/06/27
 
+**由于无人机项目的接近尾声，今后代码的分析和测试由roubo本人接受。 2013/07/05
+
 original APM introduce
 ======================
 
